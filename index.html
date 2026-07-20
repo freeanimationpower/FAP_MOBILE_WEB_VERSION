@@ -79,7 +79,7 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 
 /* CANVAS */
 .canvas-area { flex:1 1 0; background:var(--bg-canvas); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height:120px; padding:12px 8px; }
-.canvas-surface { position:relative; border:1px solid var(--border-canvas); background:#fff; width:calc(100% - 16px); height:calc(100% - 16px); max-width:92%; max-height:95%; aspect-ratio:9/16; touch-action:none; overflow:hidden; }
+.canvas-surface { position:relative; border:1px solid var(--border-canvas); background:var(--bg-canvas); width:calc(100% - 16px); height:calc(100% - 16px); max-width:92%; max-height:95%; aspect-ratio:9/16; touch-action:none; overflow:hidden; }
 .canvas-surface.zooming { overflow:visible; }
 .canvas-surface #drawCanvas { transform-origin:0 0; transition:transform 0.08s ease-out; }
 .canvas-surface.panning #drawCanvas { transition:none; }
