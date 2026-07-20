@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FAP Mobile</title>
+<style>
+:root {
+  --bg-primary: #15171c;
+  --bg-secondary: #1a1d24;
+  --bg-tertiary: #252830;
+  --bg-canvas: #141419;
+  --bg-timeline: #111318;
+  --text-primary: #e8ecf0;
+  --text-secondary: #a0a8b0;
+  --accent: #ff6d00;
+  --accent-light: #ffab40;
+  --border: #3a3d44;
+  --border-canvas: #46474b;
+  --green: #4caf50;
+  --green-bg: #1e3a1e;
+  --green-border: #2d5a2d;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0d0d10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #0a0a0f;
+  border-radius: 36px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #222;
+  box-shadow: 0 0 0 4px #111, 0 20px 60px rgba(0,0,0,0.6);
+}
+
+/* BUTTON BASE */
+.btn { width:30px; height:30px; border-radius:5px; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; padding:0; }
+.btn:hover { background:rgba(255,255,255,0.08); }
+.btn:active { background:rgba(255,255,255,0.14); transform:scale(0.92); }
+.btn:disabled { opacity:0.35; pointer-events:none; }
+.btn.active { background:rgba(255,109,0,0.2); }
+.btn.active .ico { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
+.ico { width:18px; height:18px; pointer-events:none; filter:invert(0.85); }
+.ico.accent { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
+.onion-on .ico-onion { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
+
+/* TOOLBAR */
+.toolbar { background:var(--bg-primary); padding:4px 6px; display:flex; align-items:center; gap:1px; min-height:48px; flex-shrink:0; }
+.toolbar .logo { width:26px; height:26px; border-radius:4px; flex-shrink:0; }
+.toolbar .spacer { flex:1; }
+.toolbar .frame-counter { color:var(--text-primary); font-size:13px; font-weight:700; min-width:46px; text-align:center; flex-shrink:0; }
+.toolbar .fps-tag { color:var(--text-secondary); font-size:10px; min-width:28px; text-align:center; flex-shrink:0; }
+
+/* CANVAS */
+.canvas-area { flex:1; background:var(--bg-canvas); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height:0; }
+.canvas-surface { position:relative; border:1px solid var(--border-canvas); background:#fff; width:calc(100% - 20px); height:calc(100% - 20px); max-width:90%; max-height:98%; aspect-ratio:9/16; touch-action:none; }
+.canvas-label { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.15); font-size:9px; letter-spacing:1px; text-transform:uppercase; pointer-events:none; }
+.brush-cursor { position:absolute; border-radius:50%; border:1.5px dashed rgba(0,0,0,0.5); background:rgba(0,0,0,0.06); pointer-events:none; display:none; transform:translate(-50%,-50%); }
+.onion-indicator { position:absolute; top:6px; right:6px; display:flex; gap:3px; pointer-events:none; }
+.onion-dot { width:6px; height:6px; border-radius:50%; opacity:0.5; }
+.onion-dot.prev { background:#ff4444; }
+.onion-dot.next { background:#44ff44; }
+
+/* COLOR STRIP */
+.color-strip { background:var(--bg-secondary); padding:5px 8px; display:flex; gap:6px; overflow-x:auto; flex-shrink:0; }
+.color-dot { width:26px; height:26px; border-radius:50%; flex-shrink:0; cursor:pointer; transition:transform 0.12s,box-shadow 0.12s; border:2px solid transparent; }
+.color-dot:hover { transform:scale(1.15); }
+.color-dot.active { border-color:#fff; box-shadow:0 0 6px rgba(255,255,255,0.3); }
+.color-dot.white-dot { border:2px solid #555; }
+.color-dot.white-dot.active { border-color:var(--accent-light); }
+
+/* TOOL PANEL */
+.tool-panel { background:var(--bg-secondary); padding:4px 6px; display:flex; align-items:center; gap:1px; min-height:42px; flex-shrink:0; }
+.tool-panel .slider-group { display:flex; align-items:center; gap:2px; flex-shrink:0; }
+.tool-panel .slider-label { color:var(--text-secondary); font-size:10px; width:10px; text-align:center; }
+.tool-panel input[type="range"] { -webkit-appearance:none; appearance:none; width:50px; height:3px; border-radius:2px; background:var(--border); outline:none; cursor:pointer; }
+.tool-panel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--accent); cursor:pointer; border:1.5px solid var(--accent-light); }
+.tool-panel .slider-value { color:var(--text-primary); font-size:10px; min-width:22px; text-align:center; }
+
+/* TIMELINE */
+.timeline { background:var(--bg-timeline); padding:6px 4px; display:flex; gap:3px; overflow-x:auto; flex-shrink:0; min-height:52px; align-items:center; }
+.timeline::-webkit-scrollbar { height:3px; }
+.timeline::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.timeline .go-start { width:22px; height:38px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:12px; background:var(--bg-tertiary); border-radius:3px; }
+.timeline .go-start:hover { color:#fff; }
+.frame-box { width:38px; height:38px; border-radius:4px; background:var(--bg-tertiary); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; color:var(--text-secondary); font-size:11px; }
+.frame-box:hover { border-color:var(--accent-light); }
+.frame-box.active { background:var(--accent); border-color:var(--accent-light); color:#fff; font-weight:700; box-shadow:0 0 5px rgba(255,109,0,0.4); }
+.frame-box:active { transform:scale(0.95); }
+.add-frame-box { width:36px; height:36px; border-radius:4px; background:var(--green-bg); border:1px solid var(--green-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; padding:0; }
+.add-frame-box:hover { background:#254a25; border-color:var(--green); }
+.add-frame-box:active { transform:scale(0.95); }
+
+@media (max-width:420px) { .phone { width:100vw; height:100vh; border-radius:0; border:none; } body { padding:0; } }
+@media (min-width:1200px) { .phone { width:420px; height:900px; } }
+</style>
+</head>
+<body>
+
+<div class="phone" id="app">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <img class="logo" src="icons/logo.png" alt="FAP">
+    <div style="width:3px;flex-shrink:0"></div>
+    <button class="btn" id="undoBtn" title="Undo"><img class="ico" src="icons/undo.png" alt="Undo"></button>
+    <button class="btn" id="redoBtn" title="Redo"><img class="ico" src="icons/redo.png" alt="Redo"></button>
+    <div style="width:4px;flex-shrink:0"></div>
+    <button class="btn" title="Prev Frame"><img class="ico" src="icons/previous frame.png" alt="Prev"></button>
+    <button class="btn" title="Play" id="playBtn"><img class="ico accent" src="icons/play pause.png" alt="Play"></button>
+    <button class="btn" title="Stop" id="stopBtn"><img class="ico" src="icons/stop.png" alt="Stop"></button>
+    <button class="btn" title="Next Frame"><img class="ico" src="icons/next frame.png" alt="Next"></button>
+    <div class="spacer"></div>
+    <span class="frame-counter" id="frameCounter">0 / 24</span>
+    <button class="btn" title="Add Frame"><img class="ico" src="icons/add_frame.png" alt="+"></button>
+    <button class="btn" title="Remove Frame"><img class="ico" src="icons/remove_frame.png" alt="-"></button>
+    <span class="fps-tag">24fps</span>
+    <button class="btn" id="exportGifBtn" title="Export GIF"><img class="ico" src="icons/export gif.png" alt="GIF"></button>
+    <button class="btn" id="exportVideoBtn" title="Export Video"><img class="ico" src="icons/export video.png" alt="Video"></button>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-area">
+    <div class="canvas-surface">
+      <canvas id="drawCanvas" style="width:100%;height:100%;display:block"></canvas>
+      <div class="brush-cursor" id="brushCursor"></div>
+      <div class="onion-indicator" id="onionIndicator">
+        <div class="onion-dot prev"></div>
+        <div class="onion-dot next"></div>
+      </div>
+    </div>
+    <div class="canvas-label">1080 x 1920</div>
+  </div>
+
+  <!-- COLOR STRIP -->
+  <div class="color-strip" id="colorStrip"></div>
+
+  <!-- TOOL PANEL -->
+  <div class="tool-panel">
+    <button class="btn active" id="brushBtn" title="Brush"><img class="ico" src="icons/brush.png" alt="Brush"></button>
+    <button class="btn" id="eraserBtn" title="Eraser"><img class="ico" src="icons/eraser.png" alt="Eraser"></button>
+    <button class="btn" id="fillBtn" title="Fill"><img class="ico" src="icons/fill.png" alt="Fill"></button>
+    <button class="btn onion-on" id="onionBtn" title="Onion Skin"><span class="ico-onion" style="color:#a0a8b0;font-size:16px;line-height:1;pointer-events:none">◐</span></button>
+    <div style="width:4px;flex-shrink:0"></div>
+    <div class="slider-group"><span class="slider-label">S</span><input type="range" id="sizeSlider" min="1" max="80" value="5" step="1"><span class="slider-value" id="sizeValue">5px</span></div>
+    <div style="width:2px;flex-shrink:0"></div>
+    <div class="slider-group"><span class="slider-label">O</span><input type="range" id="opacitySlider" min="5" max="100" value="100" step="5"><span class="slider-value" id="opacityValue">100%</span></div>
+    <div style="flex:1"></div>
+    <button class="btn" title="Zoom In" style="font-size:14px;color:var(--text-primary)">+</button>
+    <button class="btn" title="Zoom Out" style="font-size:16px;color:var(--text-primary)">−</button>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline" id="timeline"></div>
+
+</div>
+
+<script>
+const COLORS = ["#000000","#FFFFFF","#FF3333","#FF8800","#FFDD00","#33CC33","#00CCCC","#3388FF","#8833FF","#FF44AA","#8B5E3C","#999999"];
+
+const state = {
+  currentFrame:0, totalFrames:24, fps:24,
+  activeColor:'#000000', brushSize:5, brushOpacity:100,
+  isPlaying:false, activeTool:'brush', onionEnabled:true
+};
+
+// ─── ICONS ────────────────────────
+const ICONS = {
+  undo: 'icons/undo.png', redo: 'icons/redo.png',
+  prev: 'icons/previous frame.png', play: 'icons/play pause.png',
+  stop: 'icons/stop.png', next: 'icons/next frame.png',
+  add: 'icons/add_frame.png', remove: 'icons/remove_frame.png',
+  brush: 'icons/brush.png', eraser: 'icons/eraser.png',
+  fill: 'icons/fill.png',
+  logo: 'icons/logo.png'
+};
+
+// ─── COLORS ────────────────────────
+const colorStrip = document.getElementById('colorStrip');
+function renderColors() {
+  colorStrip.innerHTML = COLORS.map(c =>
+    `<div class="color-dot${c==='#FFFFFF'?' white-dot':''}${c===state.activeColor?' active':''}" style="background:${c}" data-color="${c}"></div>`
+  ).join('');
+}
+colorStrip.addEventListener('click', e => {
+  const dot = e.target.closest('.color-dot');
+  if (!dot) return;
+  state.activeColor = dot.dataset.color;
+  renderColors();
+});
+renderColors();
+
+// ─── CANVAS ────────────────────────
+const drawCanvas = document.getElementById('drawCanvas');
+const ctx = drawCanvas.getContext('2d');
+let isDrawing = false, lastX = 0, lastY = 0;
+const strokes = {};
+const undoStacks = {};
+
+function resizeCanvas() {
+  const w = drawCanvas.parentElement.clientWidth;
+  const h = drawCanvas.parentElement.clientHeight;
+  if (drawCanvas.width !== w || drawCanvas.height !== h) {
+    drawCanvas.width = w;
+    drawCanvas.height = h;
+    loadFrame(state.currentFrame);
+  }
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function renderFrame(fn) {
+  const c = document.createElement('canvas');
+  c.width = drawCanvas.width; c.height = drawCanvas.height;
+  const oc = c.getContext('2d');
+  oc.fillStyle = '#FFFFFF';
+  oc.fillRect(0,0,c.width,c.height);
+  const key = `frame_${fn}`;
+  if (strokes[key]) strokes[key].forEach(d => oc.putImageData(d,0,0));
+  return c;
+}
+
+function loadFrame(fn) {
+  ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0,0,drawCanvas.width,drawCanvas.height);
+
+  if (state.onionEnabled) {
+    for (let i = 3; i > 0; i--) {
+      let pn = fn - i;
+      if (pn < 0) break;
+      const key = `frame_${pn}`;
+      if (strokes[key] && strokes[key].length > 0) {
+        ctx.globalAlpha = 0.35 * (1 - (i-1)*0.25);
+        ctx.drawImage(renderFrame(pn), 0, 0);
+      }
+    }
+    for (let i = 1; i <= 3; i++) {
+      let nn = fn + i;
+      if (nn >= state.totalFrames) break;
+      const key = `frame_${nn}`;
+      if (strokes[key] && strokes[key].length > 0) {
+        ctx.globalAlpha = 0.35 * (1 - (i-1)*0.25);
+        ctx.drawImage(renderFrame(nn), 0, 0);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  const key = `frame_${fn}`;
+  if (strokes[key]) strokes[key].forEach(d => ctx.putImageData(d,0,0));
+  document.getElementById('onionIndicator').style.display = state.onionEnabled ? 'flex' : 'none';
+}
+
+function getPos(e) {
+  const rect = drawCanvas.getBoundingClientRect();
+  const sx = drawCanvas.width / rect.width;
+  const sy = drawCanvas.height / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * sx,
+    y: (clientY - rect.top) * sy,
+    pressure: e.touches ? (e.touches[0].force || 1) : (e.pressure || 1)
+  };
+}
+
+function startDraw(e) {
+  e.preventDefault();
+  const p = getPos(e);
+  if (state.activeTool === 'fill') {
+    floodFill(p.x, p.y);
+    return;
+  }
+  isDrawing = true;
+  lastX = p.x; lastY = p.y;
+  drawDot(p.x, p.y);
+}
+
+function moveDraw(e) {
+  e.preventDefault();
+  if (!isDrawing || (state.activeTool !== 'brush' && state.activeTool !== 'eraser')) return;
+  const p = getPos(e);
+  const dx = p.x - lastX, dy = p.y - lastY;
+  const sp = Math.max(1, state.brushSize * 0.3 * (drawCanvas.width / 200));
+  if (Math.sqrt(dx*dx+dy*dy) > sp) {
+    ctx.strokeStyle = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+    ctx.lineWidth = Math.max(1, state.brushSize * (drawCanvas.width / 200));
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.globalAlpha = state.brushOpacity / 100;
+    ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
+    ctx.globalAlpha = 1;
+    lastX = p.x; lastY = p.y;
+  }
+  const c = document.getElementById('brushCursor');
+  c.style.left = p.x + 'px'; c.style.top = p.y + 'px'; c.style.display = 'block';
+  c.style.width = state.brushSize * (drawCanvas.width / 200) + 'px';
+  c.style.height = state.brushSize * (drawCanvas.width / 200) + 'px';
+}
+
+function endDraw(e) {
+  e.preventDefault();
+  if (isDrawing) {
+    isDrawing = false;
+    saveStroke();
+  }
+  document.getElementById('brushCursor').style.display = 'none';
+}
+
+function drawDot(x, y) {
+  ctx.fillStyle = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+  ctx.globalAlpha = state.brushOpacity / 100;
+  ctx.beginPath();
+  ctx.arc(x, y, state.brushSize * 0.5 * (drawCanvas.width / 200), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+function floodFill(x, y) {
+  const w = drawCanvas.width, h = drawCanvas.height;
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const idx = Math.round(y) * w * 4 + Math.round(x) * 4;
+  const tr = data[idx], tg = data[idx+1], tb = data[idx+2], ta = data[idx+3];
+  const fr = parseInt(state.activeColor.slice(1,3),16);
+  const fg = parseInt(state.activeColor.slice(3,5),16);
+  const fb = parseInt(state.activeColor.slice(5,7),16);
+  if (tr === fr && tg === fg && tb === fb && ta === 255) return;
+  const stack = [[Math.round(x), Math.round(y)]];
+  while (stack.length > 0) {
+    let [sx, sy] = stack.pop();
+    if (sx < 0 || sx >= w || sy < 0 || sy >= h) continue;
+    const i = sy * w * 4 + sx * 4;
+    if (data[i] !== tr || data[i+1] !== tg || data[i+2] !== tb || data[i+3] !== ta) continue;
+    data[i] = fr; data[i+1] = fg; data[i+2] = fb; data[i+3] = 255;
+    stack.push([sx+1, sy], [sx-1, sy], [sx, sy+1], [sx, sy-1]);
+  }
+  ctx.putImageData(imgData, 0, 0);
+  saveStroke();
+}
+
+function saveStroke() {
+  const key = `frame_${state.currentFrame}`;
+  if (!strokes[key]) strokes[key] = [];
+  strokes[key].push(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  // limit undo stack per frame
+  if (!undoStacks[key]) undoStacks[key] = [];
+  undoStacks[key] = strokes[key].slice();
+  if (undoStacks[key].length > 128) undoStacks[key].shift();
+}
+
+// Mouse events
+drawCanvas.addEventListener('mousedown', startDraw);
+drawCanvas.addEventListener('mousemove', moveDraw);
+drawCanvas.addEventListener('mouseup', endDraw);
+drawCanvas.addEventListener('mouseleave', endDraw);
+
+// Touch events (tablet, stylus, fingers)
+drawCanvas.addEventListener('touchstart', startDraw, {passive:false});
+drawCanvas.addEventListener('touchmove', moveDraw, {passive:false});
+drawCanvas.addEventListener('touchend', endDraw);
+drawCanvas.addEventListener('touchcancel', endDraw);
+
+// Pointer events (unified mouse + touch + stylus with pressure)
+drawCanvas.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'pen') {
+    // Tablet stylus detected — log for debug
+    console.log('Stylus:', e.pointerType, 'pressure:', e.pressure, 'tiltX:', e.tiltX, 'tiltY:', e.tiltY);
+  }
+});
+drawCanvas.addEventListener('pointermove', e => {
+  const c = document.getElementById('brushCursor');
+  if (c.style.display === 'block' && e.pointerType === 'pen') {
+    // Adjust cursor size based on pressure
+    const ps = state.brushSize * (0.3 + e.pressure * 0.7);
+    c.style.width = ps * (drawCanvas.width / 200) + 'px';
+    c.style.height = ps * (drawCanvas.width / 200) + 'px';
+  }
+});
+
+// ─── TOOLS ──────────────────────────
+function setTool(name) {
+  state.activeTool = name;
+  document.querySelectorAll('.tool-panel .btn').forEach(b => b.classList.remove('active'));
+  const map = {brush:'brushBtn', eraser:'eraserBtn', fill:'fillBtn'};
+  const el = document.getElementById(map[name]);
+  if (el) el.classList.add('active');
+}
+document.getElementById('brushBtn').addEventListener('click', () => setTool('brush'));
+document.getElementById('eraserBtn').addEventListener('click', () => setTool('eraser'));
+document.getElementById('fillBtn').addEventListener('click', () => setTool('fill'));
+
+// ─── ONION SKIN ─────────────────────
+document.getElementById('onionBtn').addEventListener('click', function() {
+  state.onionEnabled = !state.onionEnabled;
+  this.classList.toggle('onion-on', state.onionEnabled);
+  loadFrame(state.currentFrame);
+});
+
+// ─── SLIDERS ────────────────────────
+document.getElementById('sizeSlider').addEventListener('input', function() {
+  state.brushSize = +this.value;
+  document.getElementById('sizeValue').textContent = this.value + 'px';
+});
+document.getElementById('opacitySlider').addEventListener('input', function() {
+  state.brushOpacity = +this.value;
+  document.getElementById('opacityValue').textContent = this.value + '%';
+});
+
+// ─── TIMELINE ───────────────────────
+const timeline = document.getElementById('timeline');
+function renderTimeline() {
+  let html = '<div class="go-start" title="Go to start">⏮</div>';
+  for (let i = 0; i < state.totalFrames; i++) {
+    html += `<div class="frame-box${i===state.currentFrame?' active':''}">${i+1}</div>`;
+  }
+  html += '<div class="add-frame-box"><img class="ico" src="icons/add_frame.png" alt="+" style="width:20px;height:20px;filter:invert(57%) sepia(79%) saturate(520%) hue-rotate(73deg) brightness(95%)"></div>';
+  timeline.innerHTML = html;
+
+  // Click handlers
+  const boxes = timeline.querySelectorAll('.frame-box');
+  boxes.forEach((box, i) => box.addEventListener('click', () => selectFrame(i)));
+  timeline.querySelector('.go-start').addEventListener('click', () => selectFrame(0));
+  timeline.querySelector('.add-frame-box').addEventListener('click', () => {
+    state.totalFrames++;
+    state.currentFrame = state.totalFrames - 1;
+    loadFrame(state.currentFrame);
+    updateCounter();
+    renderTimeline();
+    setTimeout(() => timeline.scrollLeft = timeline.scrollWidth, 20);
+  });
+
+  // Scroll to current frame
+  setTimeout(() => {
+    const active = timeline.querySelector('.frame-box.active');
+    if (active) active.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }, 30);
+}
+
+function selectFrame(i) {
+  state.currentFrame = i;
+  loadFrame(i);
+  updateCounter();
+  renderTimeline();
+}
+
+// ─── TOOLBAR ACTIONS ────────────────
+function updateCounter() {
+  document.getElementById('frameCounter').textContent = state.currentFrame + ' / ' + state.totalFrames;
+}
+
+document.querySelector('.toolbar').addEventListener('click', e => {
+  const btn = e.target.closest('.btn');
+  if (!btn) return;
+  const title = btn.title;
+  if (title === 'Undo') undoStroke();
+  else if (title === 'Redo') redoStroke();
+  else if (title === 'Prev Frame') selectFrame(Math.max(0, state.currentFrame - 1));
+  else if (title === 'Next Frame') selectFrame(Math.min(state.totalFrames - 1, state.currentFrame + 1));
+  else if (title === 'Play') togglePlay();
+  else if (title === 'Stop') { if (state.isPlaying) togglePlay(); selectFrame(0); }
+  else if (title === 'Add Frame') {
+    state.totalFrames++;
+    state.currentFrame = state.totalFrames - 1;
+    loadFrame(state.currentFrame);
+    updateCounter();
+    renderTimeline();
+  }
+  else if (title === 'Remove Frame') {
+    if (state.totalFrames <= 1) return;
+    state.totalFrames--;
+    if (state.currentFrame >= state.totalFrames) state.currentFrame = state.totalFrames - 1;
+    loadFrame(state.currentFrame);
+    updateCounter();
+    renderTimeline();
+  }
+});
+
+// ─── UNDO / REDO ────────────────────
+const undoStack = [], redoStack = [];
+function undoStroke() {
+  const key = `frame_${state.currentFrame}`;
+  if (strokes[key] && strokes[key].length > 0) {
+    redoStack.push(strokes[key].pop());
+    loadFrame(state.currentFrame);
+  }
+}
+function redoStroke() {
+  const key = `frame_${state.currentFrame}`;
+  if (redoStack.length > 0) {
+    if (!strokes[key]) strokes[key] = [];
+    strokes[key].push(redoStack.pop());
+    loadFrame(state.currentFrame);
+  }
+}
+
+// ─── PLAYBACK ───────────────────────
+let playInterval = null;
+function togglePlay() {
+  state.isPlaying = !state.isPlaying;
+  const icon = document.querySelector('[title="Play"] .ico');
+  if (state.isPlaying) {
+    icon.classList.add('accent');
+    playInterval = setInterval(() => selectFrame((state.currentFrame + 1) % state.totalFrames), 1000 / state.fps);
+  } else {
+    icon.classList.remove('accent');
+    clearInterval(playInterval);
+  }
+}
+
+// ─── KEYBOARD ───────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); e.shiftKey ? redoStroke() : undoStroke(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); selectFrame(Math.max(0, state.currentFrame - 1)); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); selectFrame(Math.min(state.totalFrames - 1, state.currentFrame + 1)); }
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+});
+
+// ─── DOWNLOAD HELPER ─────────────────
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+// ─── EXPORT GIF ──────────────────────
+function exportGIF() {
+  const GIF_W = Math.min(320, drawCanvas.width);
+  const GIF_H = Math.round(GIF_W * (drawCanvas.height / drawCanvas.width));
+
+  const frameData = [];
+  for (let i = 0; i < state.totalFrames; i++) {
+    const src = renderFrame(i);
+    const c = document.createElement('canvas');
+    c.width = GIF_W; c.height = GIF_H;
+    const oc = c.getContext('2d');
+    oc.drawImage(src, 0, 0, GIF_W, GIF_H);
+    frameData.push(oc.getImageData(0, 0, GIF_W, GIF_H));
+  }
+
+  // Build global palette
+  const freq = {};
+  for (const imgData of frameData) {
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const k = d[i] + ',' + d[i+1] + ',' + d[i+2];
+      freq[k] = (freq[k] || 0) + 1;
+    }
+  }
+  const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+  const palette = [];
+  for (let i = 0; i < Math.min(256, sorted.length); i++) {
+    palette.push(sorted[i][0].split(',').map(Number));
+  }
+  while (palette.length < 256) palette.push([0, 0, 0]);
+
+  const bytes = [];
+  const b = v => bytes.push(v & 0xFF);
+  const s = v => { b(v & 0xFF); b((v >> 8) & 0xFF); };
+  const str = x => { for (let i = 0; i < x.length; i++) b(x.charCodeAt(i)); };
+
+  // GIF Header
+  str('GIF89a');
+  // Logical screen descriptor
+  s(GIF_W); s(GIF_H);
+  b(0xF7); b(0); b(0); // global color table, 256 colors, sorted
+  // Global color table
+  for (let i = 0; i < 256; i++) {
+    b(palette[i][0]); b(palette[i][1]); b(palette[i][2]);
+  }
+  // Netscape loop extension
+  b(0x21); b(0xFF); b(0x0B);
+  str('NETSCAPE2.0');
+  b(0x03); b(0x01); b(0x00); b(0x00); b(0x00);
+
+  const delayCs = state.fps > 0 ? Math.max(2, Math.round(100 / state.fps)) : 10;
+
+  for (let fi = 0; fi < state.totalFrames; fi++) {
+    // Graphics control extension
+    b(0x21); b(0xF9); b(0x04); b(0x04); s(delayCs); b(0x00); b(0x00);
+    // Image descriptor
+    b(0x2C); s(0); s(0); s(GIF_W); s(GIF_H); b(0x00);
+
+    // Map pixels to palette indices
+    const d = frameData[fi].data;
+    const indices = [];
+    for (let i = 0; i < d.length; i += 4) {
+      let best = 0, min = Infinity;
+      for (let j = 0; j < 256; j++) {
+        const dr = d[i] - palette[j][0], dg = d[i+1] - palette[j][1], db = d[i+2] - palette[j][2];
+        const dist = dr * dr + dg * dg + db * db;
+        if (dist < min) { min = dist; best = j; }
+      }
+      indices.push(best);
+    }
+
+    // LZW encode
+    const minCode = 8;
+    const clr = 1 << minCode;
+    const eoi = clr + 1;
+    let csz = minCode + 1;
+    let climit = 1 << csz;
+    let nxt = eoi + 1;
+
+    const dict = new Map();
+    for (let i = 0; i < clr; i++) dict.set(String.fromCharCode(i), i);
+
+    const lzw = [];
+    let buf = 0, bits = 0;
+    const emit = code => {
+      buf |= (code << bits);
+      bits += csz;
+      while (bits >= 8) {
+        lzw.push(buf & 0xFF);
+        buf >>>= 8;
+        bits -= 8;
+      }
+    };
+
+    emit(clr);
+
+    if (indices.length > 0) {
+      let w = String.fromCharCode(indices[0]);
+      for (let i = 1; i < indices.length; i++) {
+        const c = String.fromCharCode(indices[i]);
+        const wc = w + c;
+        if (dict.has(wc)) {
+          w = wc;
+        } else {
+          emit(dict.get(w));
+          if (nxt < 4096) {
+            dict.set(wc, nxt++);
+            if (nxt > climit && csz < 12) {
+              csz++;
+              climit = 1 << csz;
+            }
+          }
+          w = c;
+        }
+      }
+      emit(dict.get(w));
+    }
+
+    emit(eoi);
+    if (bits > 0) lzw.push(buf & 0xFF);
+
+    // Write LZW sub-blocks
+    b(minCode);
+    for (let i = 0; i < lzw.length; i += 255) {
+      const block = lzw.slice(i, Math.min(i + 255, lzw.length));
+      b(block.length);
+      block.forEach(v => b(v));
+    }
+    b(0x00);
+  }
+
+  // GIF Trailer
+  b(0x3B);
+
+  downloadBlob(new Blob([new Uint8Array(bytes)], { type: 'image/gif' }), 'animacion.gif');
+}
+
+// ─── EXPORT VIDEO ────────────────────
+function exportVideo() {
+  if (state.isPlaying) togglePlay();
+
+  const videoCanvas = document.createElement('canvas');
+  videoCanvas.width = drawCanvas.width;
+  videoCanvas.height = drawCanvas.height;
+  const vctx = videoCanvas.getContext('2d');
+
+  const stream = videoCanvas.captureStream(state.fps);
+
+  let mimeType = 'video/webm';
+  if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mimeType = 'video/webm;codecs=vp9';
+  else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) mimeType = 'video/webm;codecs=vp8';
+  if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1.42E01E')) mimeType = 'video/mp4;codecs=avc1.42E01E';
+  else if (MediaRecorder.isTypeSupported('video/mp4')) mimeType = 'video/mp4';
+
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+  const chunks = [];
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
+  } catch (e) {
+    recorder = new MediaRecorder(stream, { videoBitsPerSecond: 8000000 });
+  }
+
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    downloadBlob(new Blob(chunks, { type: mimeType }), 'animacion.' + ext);
+  };
+
+  let frameIdx = 0;
+  const frameDelay = 1000 / state.fps;
+
+  vctx.fillStyle = '#FFFFFF';
+  vctx.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
+  recorder.start();
+
+  function drawFrame() {
+    if (frameIdx >= state.totalFrames) {
+      recorder.stop();
+      return;
+    }
+    const src = renderFrame(frameIdx);
+    vctx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
+    vctx.drawImage(src, 0, 0);
+    frameIdx++;
+    setTimeout(drawFrame, frameDelay);
+  }
+  drawFrame();
+}
+
+// ─── EXPORT EVENTS ───────────────────
+document.getElementById('exportGifBtn').addEventListener('click', exportGIF);
+document.getElementById('exportVideoBtn').addEventListener('click', exportVideo);
+
+// ─── INIT ───────────────────────────
+renderTimeline();
+loadFrame(0);
+</script>
+</body>
+</html>
