@@ -80,6 +80,13 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .toolbar .fps-label { color:var(--text-secondary); font-size:10px; flex-shrink:0; padding:0 1px; line-height:1; }
 .toolbar::after { content:''; position:sticky; right:0; width:16px; height:100%; flex-shrink:0; background:linear-gradient(to right,transparent,var(--bg-primary)); pointer-events:none; }
 
+/* BRUSH STRIP */
+.brush-strip { background:var(--bg-secondary); padding:3px 8px; display:flex; gap:3px; overflow-x:auto; flex-shrink:0; align-items:center; scrollbar-width:none; flex-wrap:nowrap; }
+.brush-strip::-webkit-scrollbar { display:none; }
+.brush-btn { width:28px; height:28px; border-radius:5px; border:1.5px solid var(--border); background:var(--bg-tertiary); color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px; transition:all 0.12s; padding:0; }
+.brush-btn:hover { border-color:var(--accent-light); }
+.brush-btn.active { border-color:var(--accent); background:rgba(255,109,0,0.15); color:var(--accent-light); }
+
 /* CANVAS */
 .canvas-area { flex:1 1 0; background:var(--bg-canvas); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height:120px; padding:12px 8px; }
 .canvas-surface { position:relative; border:1px solid var(--border-canvas); background:var(--bg-canvas); width:calc(100% - 16px); height:calc(100% - 16px); max-width:92%; max-height:95%; aspect-ratio:9/16; touch-action:none; overflow:hidden; }
@@ -155,6 +162,8 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
   .color-strip { padding:2px 4px; gap:4px; }
   .color-dot { width:22px; height:22px; }
   .canvas-area { padding:4px 4px; min-height:80px; }
+  .brush-strip { padding:2px 4px; gap:2px; }
+  .brush-btn { width:24px; height:24px; font-size:13px; }
   .frame-box { width:34px; height:34px; font-size:10px; border-radius:4px; }
   .add-frame-box { width:32px; height:32px; border-radius:4px; }
   .tl-scroll-btn { width:30px; min-width:30px; font-size:15px; }
@@ -219,6 +228,20 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
   <!-- COLOR STRIP -->
   <div class="color-strip" id="colorStrip"></div>
 
+  <!-- BRUSH STRIP -->
+  <div class="brush-strip" id="brushStrip">
+    <button class="brush-btn active" data-brush="round" title="Round">◉</button>
+    <button class="brush-btn" data-brush="square" title="Square">■</button>
+    <button class="brush-btn" data-brush="pencil" title="Pencil">│</button>
+    <button class="brush-btn" data-brush="soft" title="Soft">◎</button>
+    <button class="brush-btn" data-brush="calligraphy" title="Calligraphy">╲</button>
+    <button class="brush-btn" data-brush="marker" title="Marker">◈</button>
+    <button class="brush-btn" data-brush="ink" title="Ink">⏺</button>
+    <button class="brush-btn" data-brush="chalk" title="Chalk">◫</button>
+    <button class="brush-btn" data-brush="glow" title="Glow">✦</button>
+    <button class="brush-btn" data-brush="pixel" title="Pixel">▢</button>
+  </div>
+
   <!-- TOOL PANEL -->
   <div class="tool-panel">
     <button class="btn active" id="brushBtn" title="Brush"><img class="ico" src="icons/brush.png" alt="Brush"></button>
@@ -269,11 +292,26 @@ const COLORS = [
 const state = {
   currentFrame:0, totalFrames:24, fps:24,
   activeColor:'#000000', brushSize:5, brushOpacity:100,
-  isPlaying:false, activeTool:'brush', onionEnabled:true
+  isPlaying:false, activeTool:'brush', onionEnabled:true,
+  brushType:'round'
 };
 
 const viewport = { zoom:1, panX:0, panY:0, minZoom:0.3, maxZoom:5 };
 let isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
+
+// ─── BRUSHES ────────────────────────
+const BRUSHES = {
+  round:       { cap:'round',  join:'round',  scale:1.0,  alpha:1.0,  filter:null, label:'Round' },
+  square:      { cap:'square', join:'miter',  scale:1.0,  alpha:1.0,  filter:null, label:'Square' },
+  pencil:      { cap:'square', join:'miter',  fixed:1,    alpha:1.0,  filter:null, label:'Pencil' },
+  soft:        { cap:'round',  join:'round',  scale:1.2,  alpha:1.0,  filter:'blur(3px)', label:'Soft' },
+  calligraphy: { cap:'round',  join:'round',  scale:1.0,  alpha:1.0,  filter:null, slant:45, ratio:0.3, label:'Calligraphy' },
+  marker:      { cap:'round',  join:'round',  scale:1.4,  alpha:0.65, filter:null, label:'Marker' },
+  ink:         { cap:'round',  join:'round',  scale:1.05, alpha:1.0,  filter:null, label:'Ink' },
+  chalk:       { cap:'butt',   join:'round',  scale:0.5,  alpha:1.0,  filter:null, jitter:true, label:'Chalk' },
+  glow:        { cap:'round',  join:'round',  scale:1.8,  alpha:0.25, filter:'blur(5px)', outer:true, label:'Glow' },
+  pixel:       { cap:'square', join:'miter',  fixed:1,    alpha:1.0,  filter:null, crisp:true, label:'Pixel' }
+};
 
 // ─── ICONS ────────────────────────
 const ICONS = {
@@ -504,17 +542,54 @@ function moveDraw(e) {
   e.preventDefault();
   if (!isDrawing || (state.activeTool !== 'brush' && state.activeTool !== 'eraser')) return;
   const p = getPos(e);
-  const dx = p.x - lastX, dy = p.y - lastY;
-  const sp = Math.max(1, state.brushSize * 0.3 * (drawCanvas.width / 200));
-  if (Math.sqrt(dx*dx+dy*dy) > sp) {
-    const color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
-    [ctx, fbCtx].forEach(c => {
+  var br = BRUSHES[state.brushType];
+  var dpr = drawCanvas.width / 200;
+  var dx = p.x - lastX, dy = p.y - lastY;
+  var step = Math.max(1, (br.fixed || state.brushSize * br.scale) * 0.3 * dpr);
+  if (Math.sqrt(dx*dx+dy*dy) > step) {
+    var color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+    var alpha = (state.brushOpacity / 100) * br.alpha;
+    var lw = br.fixed || (state.brushSize * br.scale * dpr);
+    [ctx, fbCtx].forEach(function(c) {
+      c.save();
+      c.globalAlpha = alpha;
       c.strokeStyle = color;
-      c.lineWidth = Math.max(1, state.brushSize * (drawCanvas.width / 200));
-      c.lineCap = 'round'; c.lineJoin = 'round';
-      c.globalAlpha = state.brushOpacity / 100;
-      c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+      c.lineCap = br.cap;
+      c.lineJoin = br.join;
+      if (br.crisp) c.imageSmoothingEnabled = false;
+      if (br.filter) c.filter = br.filter;
+
+      if (br.outer) {
+        c.lineWidth = Math.max(1, state.brushSize * br.scale * dpr);
+        c.filter = br.filter;
+        c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+        c.filter = 'none';
+        c.lineWidth = Math.max(1, state.brushSize * 0.3 * dpr);
+        c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+      } else if (br.chalk) {
+        c.lineWidth = Math.max(1, lw);
+        for (var j = 0; j < 3; j++) {
+          var jx1 = lastX + (Math.random() - 0.5) * lw;
+          var jy1 = lastY + (Math.random() - 0.5) * lw;
+          var jx2 = p.x + (Math.random() - 0.5) * lw;
+          var jy2 = p.y + (Math.random() - 0.5) * lw;
+          c.beginPath(); c.moveTo(jx1, jy1); c.lineTo(jx2, jy2); c.stroke();
+        }
+      } else if (br.slant) {
+        c.translate(p.x, p.y);
+        c.rotate(br.slant * Math.PI / 180);
+        c.scale(br.ratio, 1);
+        c.translate(-p.x, -p.y);
+        c.lineWidth = Math.max(1, lw);
+        c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+      } else {
+        c.lineWidth = Math.max(1, lw);
+        c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+      }
+
+      c.filter = 'none';
       c.globalAlpha = 1;
+      c.restore();
     });
     lastX = p.x; lastY = p.y;
   }
@@ -543,14 +618,62 @@ function endDraw(e) {
 }
 
 function drawDot(x, y) {
-  const color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
-  [ctx, fbCtx].forEach(c => {
+  var br = BRUSHES[state.brushType];
+  var color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+  var dpr = drawCanvas.width / 200;
+  var alpha = (state.brushOpacity / 100) * br.alpha;
+
+  [ctx, fbCtx].forEach(function(c) {
+    c.save();
+    c.globalAlpha = alpha;
     c.fillStyle = color;
-    c.globalAlpha = state.brushOpacity / 100;
-    c.beginPath();
-    c.arc(x, y, state.brushSize * 0.5 * (drawCanvas.width / 200), 0, Math.PI * 2);
-    c.fill();
+    c.strokeStyle = color;
+
+    if (br.fixed) {
+      var sz = br.fixed;
+      if (br.crisp) c.imageSmoothingEnabled = false;
+      c.fillRect(x - sz / 2, y - sz / 2, sz, sz);
+    } else if (br.jitter) {
+      var r = state.brushSize * br.scale * dpr * 0.5;
+      for (var j = 0; j < 8; j++) {
+        var jx = x + (Math.random() - 0.5) * r * 2;
+        var jy = y + (Math.random() - 0.5) * r * 2;
+        var jr = Math.random() * r * 0.8 + 1;
+        c.beginPath();
+        c.arc(jx, jy, jr, 0, Math.PI * 2);
+        c.fill();
+      }
+    } else if (br.slant) {
+      c.translate(x, y);
+      c.rotate(br.slant * Math.PI / 180);
+      c.scale(br.ratio, 1);
+      c.beginPath();
+      c.arc(0, 0, state.brushSize * br.scale * dpr * 0.5, 0, Math.PI * 2);
+      c.fill();
+    } else if (br.outer) {
+      c.filter = 'none';
+      c.beginPath();
+      c.arc(x, y, state.brushSize * 0.3 * dpr, 0, Math.PI * 2);
+      c.fill();
+      c.filter = br.filter;
+      c.beginPath();
+      c.arc(x, y, state.brushSize * br.scale * dpr * 0.5, 0, Math.PI * 2);
+      c.fill();
+      c.filter = 'none';
+    } else if (br.filter) {
+      c.filter = br.filter;
+      c.beginPath();
+      c.arc(x, y, state.brushSize * br.scale * dpr * 0.5, 0, Math.PI * 2);
+      c.fill();
+      c.filter = 'none';
+    } else {
+      c.beginPath();
+      c.arc(x, y, state.brushSize * br.scale * dpr * 0.5, 0, Math.PI * 2);
+      c.fill();
+    }
+
     c.globalAlpha = 1;
+    c.restore();
   });
 }
 
@@ -649,6 +772,15 @@ document.getElementById('brushBtn').addEventListener('click', () => setTool('bru
 document.getElementById('eraserBtn').addEventListener('click', () => setTool('eraser'));
 document.getElementById('fillBtn').addEventListener('click', () => setTool('fill'));
 document.getElementById('handBtn').addEventListener('click', () => setTool('hand'));
+
+// ─── BRUSH SELECTOR ──────────────────
+document.getElementById('brushStrip').addEventListener('click', function(e) {
+  var btn = e.target.closest('.brush-btn');
+  if (!btn) return;
+  state.brushType = btn.dataset.brush;
+  this.querySelectorAll('.brush-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+});
 
 // ─── ZOOM ────────────────────────────
 document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
