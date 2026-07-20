@@ -494,6 +494,7 @@ function floodFill(x, y) {
   fbCtx.putImageData(imgData, 0, 0);
   ctx.drawImage(frameBuffer, 0, 0);
   saveStroke();
+  loadFrame(state.currentFrame);
 }
 
 function saveStroke() {
