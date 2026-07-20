@@ -55,26 +55,26 @@ body {
 }
 
 /* BUTTON BASE */
-.btn { width:30px; height:30px; border-radius:5px; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; padding:0; }
+.btn { width:34px; height:34px; border-radius:6px; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; padding:0; }
 .btn:hover { background:rgba(255,255,255,0.08); }
 .btn:active { background:rgba(255,255,255,0.14); transform:scale(0.92); }
 .btn:disabled { opacity:0.35; pointer-events:none; }
 .btn.active { background:rgba(255,109,0,0.2); }
 .btn.active .ico { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
-.ico { width:18px; height:18px; pointer-events:none; filter:invert(0.85); }
+.ico { width:20px; height:20px; pointer-events:none; filter:invert(0.85); }
 .ico.accent { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
 .onion-on .ico-onion { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
 
 /* TOOLBAR */
-.toolbar { background:var(--bg-primary); padding:4px 6px; display:flex; align-items:center; gap:1px; min-height:48px; flex-shrink:0; }
-.toolbar .logo { width:26px; height:26px; border-radius:4px; flex-shrink:0; }
+.toolbar { background:var(--bg-primary); padding:6px 8px; display:flex; align-items:center; gap:2px; min-height:56px; flex-shrink:0; }
+.toolbar .logo { width:30px; height:30px; border-radius:5px; flex-shrink:0; }
 .toolbar .spacer { flex:1; }
-.toolbar .frame-counter { color:var(--text-primary); font-size:13px; font-weight:700; min-width:46px; text-align:center; flex-shrink:0; }
-.toolbar .fps-tag { color:var(--text-secondary); font-size:10px; min-width:28px; text-align:center; flex-shrink:0; }
+.toolbar .frame-counter { color:var(--text-primary); font-size:14px; font-weight:700; min-width:50px; text-align:center; flex-shrink:0; }
+.toolbar .fps-tag { color:var(--text-secondary); font-size:11px; min-width:30px; text-align:center; flex-shrink:0; }
 
 /* CANVAS */
-.canvas-area { flex:1; background:var(--bg-canvas); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height:0; }
-.canvas-surface { position:relative; border:1px solid var(--border-canvas); background:#fff; width:calc(100% - 20px); height:calc(100% - 20px); max-width:90%; max-height:98%; aspect-ratio:9/16; touch-action:none; }
+.canvas-area { flex:1 1 0; background:var(--bg-canvas); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height:120px; padding:12px 8px; }
+.canvas-surface { position:relative; border:1px solid var(--border-canvas); background:#fff; width:calc(100% - 16px); height:calc(100% - 16px); max-width:92%; max-height:95%; aspect-ratio:9/16; touch-action:none; }
 .canvas-label { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.15); font-size:9px; letter-spacing:1px; text-transform:uppercase; pointer-events:none; }
 .brush-cursor { position:absolute; border-radius:50%; border:1.5px dashed rgba(0,0,0,0.5); background:rgba(0,0,0,0.06); pointer-events:none; display:none; transform:translate(-50%,-50%); }
 .onion-indicator { position:absolute; top:6px; right:6px; display:flex; gap:3px; pointer-events:none; }
@@ -83,32 +83,32 @@ body {
 .onion-dot.next { background:#44ff44; }
 
 /* COLOR STRIP */
-.color-strip { background:var(--bg-secondary); padding:5px 8px; display:flex; gap:6px; overflow-x:auto; flex-shrink:0; }
-.color-dot { width:26px; height:26px; border-radius:50%; flex-shrink:0; cursor:pointer; transition:transform 0.12s,box-shadow 0.12s; border:2px solid transparent; }
+.color-strip { background:var(--bg-secondary); padding:6px 8px; display:flex; gap:7px; overflow-x:auto; flex-shrink:0; }
+.color-dot { width:28px; height:28px; border-radius:50%; flex-shrink:0; cursor:pointer; transition:transform 0.12s,box-shadow 0.12s; border:2px solid transparent; }
 .color-dot:hover { transform:scale(1.15); }
 .color-dot.active { border-color:#fff; box-shadow:0 0 6px rgba(255,255,255,0.3); }
 .color-dot.white-dot { border:2px solid #555; }
 .color-dot.white-dot.active { border-color:var(--accent-light); }
 
 /* TOOL PANEL */
-.tool-panel { background:var(--bg-secondary); padding:4px 6px; display:flex; align-items:center; gap:1px; min-height:42px; flex-shrink:0; }
-.tool-panel .slider-group { display:flex; align-items:center; gap:2px; flex-shrink:0; }
-.tool-panel .slider-label { color:var(--text-secondary); font-size:10px; width:10px; text-align:center; }
-.tool-panel input[type="range"] { -webkit-appearance:none; appearance:none; width:50px; height:3px; border-radius:2px; background:var(--border); outline:none; cursor:pointer; }
-.tool-panel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--accent); cursor:pointer; border:1.5px solid var(--accent-light); }
-.tool-panel .slider-value { color:var(--text-primary); font-size:10px; min-width:22px; text-align:center; }
+.tool-panel { background:var(--bg-secondary); padding:6px 8px; display:flex; align-items:center; gap:2px; min-height:50px; flex-shrink:0; }
+.tool-panel .slider-group { display:flex; align-items:center; gap:3px; flex-shrink:0; }
+.tool-panel .slider-label { color:var(--text-secondary); font-size:11px; width:12px; text-align:center; }
+.tool-panel input[type="range"] { -webkit-appearance:none; appearance:none; width:60px; height:4px; border-radius:2px; background:var(--border); outline:none; cursor:pointer; }
+.tool-panel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:1.5px solid var(--accent-light); }
+.tool-panel .slider-value { color:var(--text-primary); font-size:11px; min-width:25px; text-align:center; }
 
 /* TIMELINE */
-.timeline { background:var(--bg-timeline); padding:6px 4px; display:flex; gap:3px; overflow-x:auto; flex-shrink:0; min-height:52px; align-items:center; }
-.timeline::-webkit-scrollbar { height:3px; }
-.timeline::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-.timeline .go-start { width:22px; height:38px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:12px; background:var(--bg-tertiary); border-radius:3px; }
+.timeline { background:var(--bg-timeline); padding:8px 6px; display:flex; gap:4px; overflow-x:auto; flex-shrink:0; min-height:68px; align-items:center; }
+.timeline::-webkit-scrollbar { height:8px; }
+.timeline::-webkit-scrollbar-thumb { background:var(--accent); border-radius:4px; }
+.timeline .go-start { width:28px; height:44px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:14px; background:var(--bg-tertiary); border-radius:4px; }
 .timeline .go-start:hover { color:#fff; }
-.frame-box { width:38px; height:38px; border-radius:4px; background:var(--bg-tertiary); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; color:var(--text-secondary); font-size:11px; }
+.frame-box { width:44px; height:44px; border-radius:5px; background:var(--bg-tertiary); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; color:var(--text-secondary); font-size:12px; }
 .frame-box:hover { border-color:var(--accent-light); }
 .frame-box.active { background:var(--accent); border-color:var(--accent-light); color:#fff; font-weight:700; box-shadow:0 0 5px rgba(255,109,0,0.4); }
 .frame-box:active { transform:scale(0.95); }
-.add-frame-box { width:36px; height:36px; border-radius:4px; background:var(--green-bg); border:1px solid var(--green-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; padding:0; }
+.add-frame-box { width:42px; height:42px; border-radius:5px; background:var(--green-bg); border:1px solid var(--green-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; padding:0; }
 .add-frame-box:hover { background:#254a25; border-color:var(--green); }
 .add-frame-box:active { transform:scale(0.95); }
 
@@ -166,6 +166,7 @@ body {
     <button class="btn" id="eraserBtn" title="Eraser"><img class="ico" src="icons/eraser.png" alt="Eraser"></button>
     <button class="btn" id="fillBtn" title="Fill"><img class="ico" src="icons/fill.png" alt="Fill"></button>
     <button class="btn onion-on" id="onionBtn" title="Onion Skin"><span class="ico-onion" style="color:#a0a8b0;font-size:16px;line-height:1;pointer-events:none">◐</span></button>
+    <button class="btn" id="handBtn" title="Hand / Pan"><img class="ico" src="icons/hand.png" alt="Hand"></button>
     <div style="width:4px;flex-shrink:0"></div>
     <div class="slider-group"><span class="slider-label">S</span><input type="range" id="sizeSlider" min="1" max="80" value="5" step="1"><span class="slider-value" id="sizeValue">5px</span></div>
     <div style="width:2px;flex-shrink:0"></div>
@@ -196,7 +197,7 @@ const ICONS = {
   stop: 'icons/stop.png', next: 'icons/next frame.png',
   add: 'icons/add_frame.png', remove: 'icons/remove_frame.png',
   brush: 'icons/brush.png', eraser: 'icons/eraser.png',
-  fill: 'icons/fill.png',
+  fill: 'icons/fill.png', hand: 'icons/hand.png',
   logo: 'icons/logo.png'
 };
 
@@ -217,6 +218,7 @@ renderColors();
 
 // ─── CANVAS ────────────────────────
 const drawCanvas = document.getElementById('drawCanvas');
+const canvasSurface = drawCanvas.parentElement;
 const ctx = drawCanvas.getContext('2d');
 let isDrawing = false, lastX = 0, lastY = 0;
 const strokes = {};
@@ -291,6 +293,11 @@ function getPos(e) {
 }
 
 function startDraw(e) {
+  if (state.activeTool === 'hand') {
+    // Hand tool: do NOT prevent default — pass touch to browser for scrolling
+    drawCanvas.style.cursor = 'grabbing';
+    return;
+  }
   e.preventDefault();
   const p = getPos(e);
   if (state.activeTool === 'fill') {
@@ -303,6 +310,7 @@ function startDraw(e) {
 }
 
 function moveDraw(e) {
+  if (state.activeTool === 'hand') return;
   e.preventDefault();
   if (!isDrawing || (state.activeTool !== 'brush' && state.activeTool !== 'eraser')) return;
   const p = getPos(e);
@@ -324,6 +332,10 @@ function moveDraw(e) {
 }
 
 function endDraw(e) {
+  if (state.activeTool === 'hand') {
+    drawCanvas.style.cursor = 'grab';
+    return;
+  }
   e.preventDefault();
   if (isDrawing) {
     isDrawing = false;
@@ -407,13 +419,22 @@ drawCanvas.addEventListener('pointermove', e => {
 function setTool(name) {
   state.activeTool = name;
   document.querySelectorAll('.tool-panel .btn').forEach(b => b.classList.remove('active'));
-  const map = {brush:'brushBtn', eraser:'eraserBtn', fill:'fillBtn'};
+  const map = {brush:'brushBtn', eraser:'eraserBtn', fill:'fillBtn', hand:'handBtn'};
   const el = document.getElementById(map[name]);
   if (el) el.classList.add('active');
+  if (name === 'hand') {
+    drawCanvas.style.cursor = 'grab';
+    document.getElementById('brushCursor').style.display = 'none';
+    canvasSurface.style.touchAction = 'pan-y';
+  } else {
+    drawCanvas.style.cursor = 'crosshair';
+    canvasSurface.style.touchAction = 'none';
+  }
 }
 document.getElementById('brushBtn').addEventListener('click', () => setTool('brush'));
 document.getElementById('eraserBtn').addEventListener('click', () => setTool('eraser'));
 document.getElementById('fillBtn').addEventListener('click', () => setTool('fill'));
+document.getElementById('handBtn').addEventListener('click', () => setTool('hand'));
 
 // ─── ONION SKIN ─────────────────────
 document.getElementById('onionBtn').addEventListener('click', function() {
