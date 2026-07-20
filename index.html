@@ -300,6 +300,8 @@ const PAN_STEP = 80;
 const drawCanvas = document.getElementById('drawCanvas');
 const canvasSurface = drawCanvas.parentElement;
 const ctx = drawCanvas.getContext('2d');
+const frameBuffer = document.createElement('canvas');
+const fbCtx = frameBuffer.getContext('2d');
 let isDrawing = false, lastX = 0, lastY = 0;
 const strokes = {};
 const undoStacks = {};
@@ -310,6 +312,8 @@ function resizeCanvas() {
   if (drawCanvas.width !== w || drawCanvas.height !== h) {
     drawCanvas.width = w;
     drawCanvas.height = h;
+    frameBuffer.width = w;
+    frameBuffer.height = h;
     loadFrame(state.currentFrame);
   }
 }
@@ -328,6 +332,12 @@ function renderFrame(fn) {
 }
 
 function loadFrame(fn) {
+  const key = `frame_${fn}`;
+  fbCtx.clearRect(0, 0, frameBuffer.width, frameBuffer.height);
+  fbCtx.fillStyle = '#FFFFFF';
+  fbCtx.fillRect(0, 0, frameBuffer.width, frameBuffer.height);
+  if (strokes[key]) strokes[key].forEach(d => fbCtx.putImageData(d, 0, 0));
+
   ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0,0,drawCanvas.width,drawCanvas.height);
@@ -336,8 +346,8 @@ function loadFrame(fn) {
     for (let i = 3; i > 0; i--) {
       let pn = fn - i;
       if (pn < 0) break;
-      const key = `frame_${pn}`;
-      if (strokes[key] && strokes[key].length > 0) {
+      const pk = `frame_${pn}`;
+      if (strokes[pk] && strokes[pk].length > 0) {
         ctx.globalAlpha = 0.35 * (1 - (i-1)*0.25);
         ctx.drawImage(renderFrame(pn), 0, 0);
       }
@@ -345,8 +355,8 @@ function loadFrame(fn) {
     for (let i = 1; i <= 3; i++) {
       let nn = fn + i;
       if (nn >= state.totalFrames) break;
-      const key = `frame_${nn}`;
-      if (strokes[key] && strokes[key].length > 0) {
+      const nk = `frame_${nn}`;
+      if (strokes[nk] && strokes[nk].length > 0) {
         ctx.globalAlpha = 0.35 * (1 - (i-1)*0.25);
         ctx.drawImage(renderFrame(nn), 0, 0);
       }
@@ -354,8 +364,7 @@ function loadFrame(fn) {
   }
   ctx.globalAlpha = 1;
 
-  const key = `frame_${fn}`;
-  if (strokes[key]) strokes[key].forEach(d => ctx.putImageData(d,0,0));
+  ctx.drawImage(frameBuffer, 0, 0);
   document.getElementById('onionIndicator').style.display = state.onionEnabled ? 'flex' : 'none';
 }
 
@@ -416,12 +425,15 @@ function moveDraw(e) {
   const dx = p.x - lastX, dy = p.y - lastY;
   const sp = Math.max(1, state.brushSize * 0.3 * (drawCanvas.width / 200));
   if (Math.sqrt(dx*dx+dy*dy) > sp) {
-    ctx.strokeStyle = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
-    ctx.lineWidth = Math.max(1, state.brushSize * (drawCanvas.width / 200));
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.globalAlpha = state.brushOpacity / 100;
-    ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
-    ctx.globalAlpha = 1;
+    const color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+    [ctx, fbCtx].forEach(c => {
+      c.strokeStyle = color;
+      c.lineWidth = Math.max(1, state.brushSize * (drawCanvas.width / 200));
+      c.lineCap = 'round'; c.lineJoin = 'round';
+      c.globalAlpha = state.brushOpacity / 100;
+      c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+      c.globalAlpha = 1;
+    });
     lastX = p.x; lastY = p.y;
   }
   const c = document.getElementById('brushCursor');
@@ -449,17 +461,20 @@ function endDraw(e) {
 }
 
 function drawDot(x, y) {
-  ctx.fillStyle = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
-  ctx.globalAlpha = state.brushOpacity / 100;
-  ctx.beginPath();
-  ctx.arc(x, y, state.brushSize * 0.5 * (drawCanvas.width / 200), 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  const color = state.activeTool === 'eraser' ? '#FFFFFF' : state.activeColor;
+  [ctx, fbCtx].forEach(c => {
+    c.fillStyle = color;
+    c.globalAlpha = state.brushOpacity / 100;
+    c.beginPath();
+    c.arc(x, y, state.brushSize * 0.5 * (drawCanvas.width / 200), 0, Math.PI * 2);
+    c.fill();
+    c.globalAlpha = 1;
+  });
 }
 
 function floodFill(x, y) {
-  const w = drawCanvas.width, h = drawCanvas.height;
-  const imgData = ctx.getImageData(0, 0, w, h);
+  const w = frameBuffer.width, h = frameBuffer.height;
+  const imgData = fbCtx.getImageData(0, 0, w, h);
   const data = imgData.data;
   const idx = Math.round(y) * w * 4 + Math.round(x) * 4;
   const tr = data[idx], tg = data[idx+1], tb = data[idx+2], ta = data[idx+3];
@@ -476,15 +491,15 @@ function floodFill(x, y) {
     data[i] = fr; data[i+1] = fg; data[i+2] = fb; data[i+3] = 255;
     stack.push([sx+1, sy], [sx-1, sy], [sx, sy+1], [sx, sy-1]);
   }
-  ctx.putImageData(imgData, 0, 0);
+  fbCtx.putImageData(imgData, 0, 0);
+  ctx.drawImage(frameBuffer, 0, 0);
   saveStroke();
 }
 
 function saveStroke() {
   const key = `frame_${state.currentFrame}`;
   if (!strokes[key]) strokes[key] = [];
-  strokes[key].push(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
-  // limit undo stack per frame
+  strokes[key].push(fbCtx.getImageData(0, 0, frameBuffer.width, frameBuffer.height));
   if (!undoStacks[key]) undoStacks[key] = [];
   undoStacks[key] = strokes[key].slice();
   if (undoStacks[key].length > 128) undoStacks[key].shift();
