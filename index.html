@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>FAP Mobile</title>
 <style>
 :root {
@@ -21,6 +23,7 @@
   --green-bg: #1e3a1e;
   --green-border: #2d5a2d;
 }
+html { height:100%; overflow-x:hidden; }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -28,11 +31,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100dvh;
   min-height: 100vh;
-  padding: 16px;
+  padding: 16px calc(16px + env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 .phone {
   width: 390px;
@@ -44,6 +51,7 @@ body {
   flex-direction: column;
   border: 2px solid #222;
   box-shadow: 0 0 0 4px #111, 0 20px 60px rgba(0,0,0,0.6);
+  touch-action: manipulation;
 }
 
 /* BUTTON BASE */
@@ -104,7 +112,11 @@ body {
 .add-frame-box:hover { background:#254a25; border-color:var(--green); }
 .add-frame-box:active { transform:scale(0.95); }
 
-@media (max-width:420px) { .phone { width:100vw; height:100vh; border-radius:0; border:none; } body { padding:0; } }
+@media (max-width:420px) {
+  .phone { width:100vw; height:100dvh; height:100vh; border-radius:0; border:none; }
+  body { padding:0; padding-bottom:24px; align-items:flex-start; min-height:100dvh; }
+  .toolbar { padding-top:calc(4px + env(safe-area-inset-top, 0px)); }
+}
 @media (min-width:1200px) { .phone { width:420px; height:900px; } }
 </style>
 </head>
