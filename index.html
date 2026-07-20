@@ -255,7 +255,16 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
     document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
   });
 })();
-const COLORS = ["#000000","#FFFFFF","#FF3333","#FF8800","#FFDD00","#33CC33","#00CCCC","#3388FF","#8833FF","#FF44AA","#8B5E3C","#999999"];
+const COLORS = [
+  "#000000","#FFFFFF",
+  "#FF3333","#DC143C","#FF1493","#FF00FF","#C71585","#FF44AA","#FF69B4","#8B008B",
+  "#FF8800","#FF4500","#FF8C00","#CD853F","#8B5E3C",
+  "#FFDD00","#FFD700","#DAA520",
+  "#33CC33","#00FF00","#7FFF00","#00FF7F","#228B22","#2E8B57",
+  "#00CCCC","#00FFFF","#008080",
+  "#3388FF","#1E90FF","#4682B4","#8833FF","#4B0082",
+  "#999999","#696969"
+];
 
 const state = {
   currentFrame:0, totalFrames:24, fps:24,
