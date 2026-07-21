@@ -927,12 +927,12 @@ function saveStroke() {
   const key = `frame_${state.currentFrame}`;
 
   if (!undoStacks[key]) undoStacks[key] = [];
-  if (frameCanvases[key]) {
-    undoStacks[key].push(
-      frameCanvases[key].getContext('2d').getImageData(0, 0, frameCanvases[key].width, frameCanvases[key].height)
-    );
-    if (undoStacks[key].length > MAX_UNDO) undoStacks[key].shift();
-  }
+
+  ensureFrameCanvas(key);
+  undoStacks[key].push(
+    frameCanvases[key].getContext('2d').getImageData(0, 0, frameCanvases[key].width, frameCanvases[key].height)
+  );
+  if (undoStacks[key].length > MAX_UNDO) undoStacks[key].shift();
 
   if (redoStacks[key]) redoStacks[key] = [];
 
