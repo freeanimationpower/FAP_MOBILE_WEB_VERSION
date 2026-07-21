@@ -62,9 +62,9 @@ endDraw   → saveStroke() → fbCtx copied to frameCanvases[key] + undo snapsho
 
 ## Features
 
-### 🎨 20 Brushes
+### 🎨 60 Brushes
 
-Brush engine powered by `BRUSHES` config object + `setBrushStyle()`:
+Brush engine powered by `BRUSHES` config object + `setBrushStyle()` + `darkenColor()` helper:
 
 | # | Brush | Technique |
 |---|-------|-----------|
@@ -88,6 +88,50 @@ Brush engine powered by `BRUSHES` config object + `setBrushStyle()`:
 | 18 | **Neon** | Intense glow: `shadowBlur:6` + solid core |
 | 19 | **Fur** | 7 parallel strands with jitter |
 | 20 | **Drip** | Main stroke + vertical drip drops |
+| 21 | **Airbrush** | Random dots in cone, density-decay with distance |
+| 22 | **Sand** | 25-40 fine 1px grains with jitter |
+| 23 | **Sponge** | 3-6 irregular rotated elliptical blobs |
+| 24 | **Pastel** | Chunky directional rectangles with rotation |
+| 25 | **Gravel** | Random 3-5 vertex polygons |
+| 26 | **Rake** | 5-7 parallel lines perpendicular to stroke |
+| 27 | **Chain** | Interlocking hollow circles |
+| 28 | **Zigzag** | Angular zigzag pattern along stroke |
+| 29 | **Wave** | 3-phase sinusoidal waves |
+| 30 | **Lace** | Circular dot patterns in repeating formation |
+| 31 | **Oil** | 3-layer impasto overlapping strokes |
+| 32 | **Dry Brush** | Only ~55% sample points, shallow marks |
+| 33 | **Smudge** | 4 layers of large low-opacity circles |
+| 34 | **Acrylic** | Bold base + 3-5 directional texture lines |
+| 35 | **Gouache** | Flat fill + darkenColor(0.55) outline edge |
+| 36 | **Sparkle** | 4-point star stamps + center dot |
+| 37 | **Comet** | Bright head + 5 trailing dots |
+| 38 | **Graffiti** | Thick stroke + darkenColor(0.3) contrasting outline |
+| 39 | **Spiderweb** | 6-8 radial lines + center dot |
+| 40 | **Smoke** | 5-8 expanding soft circles |
+| 41 | **Confetti** | Random squares & circles, 3 tonal variants |
+| 42 | **Rain** | 12-20 thin vertical dashes |
+| 43 | **Bubbles** | 5-11 hollow circles with highlight |
+| 44 | **Vines** | Curling spiral + alternating leaf ellipses |
+| 45 | **Scales** | Overlapping arc pattern (fish-scale) |
+| 46 | **Stitch** | Dashed line + perpendicular cross-stitches |
+| 47 | **Grid** | Fine grid/crosshatch pattern |
+| 48 | **Embers** | Glowing dots with shadowBlur |
+| 49 | **Crackle** | Jagged branching cracks + sub-branches |
+| 50 | **Diamond** | Diamond/rhombus stamps |
+| 51 | **Feather** | 4 soft layered stroke offsets |
+| 52 | **Wire** | Solid fill + darkenColor(0.5) 3D shadow offset |
+| 53 | **Pebble** | Rotated & scaled ovals |
+| 54 | **Brick** | Staggered rectangular brick pattern |
+| 55 | **Scribble** | 40-60 dense random circular scribble lines |
+| 56 | **Drizzle** | 20-35 very fine dot spray per sample |
+| 57 | **Tribal** | Radial triangular geometric pattern stamps |
+| 58 | **Frost** | 3-point crystalline branched shapes |
+| 59 | **Marble** | Overlapping sine-wave veins |
+| 60 | **Holographic** | 7-offset rainbow/prismatic layered circles |
+
+### 🎨 Color Palette (66 colors)
+
+Organized in spectral gradient: blacks → reds → oranges → browns → yellows → chartreuse → neon greens → greens → teal → cyan → sky blues → blues → purples → indigos → magentas → hot pinks → pinks → grays.
 
 ### 🧅 Onion Skin
 
@@ -191,6 +235,7 @@ All exported files follow the naming convention **`FREEANIMATIONPOWER_XX.ext`**,
 | `getStrokeLayer(key)` | Lazy-build transparent stroke canvas from full frame |
 | `tintAndDraw(ctx, src, color, alpha)` | Apply color tint + alpha to a canvas via `source-atop` |
 | `setBrushStyle(ctx, br, color, alpha, lw)` | Configure ctx properties for a brush type |
+| `darkenColor(hex, factor)` | Darken/lighten a hex color by factor |
 | `ensureFrameCanvas(key)` | Create offscreen canvas for frame if missing |
 | `exportGIF()` | Async GIF encoder with color cube |
 | `exportVideo()` | Async video export via `MediaRecorder` |
@@ -221,12 +266,11 @@ FAP_MOBILE_WEB_VERSION/
 ├── index.html          # Single-file app (HTML + CSS + JS)
 ├── README.md
 └── icons/
-    ├── brushes/        # 20 brush PNG icons
+    ├── brushes/        # 60 brush PNG icons
     │   ├── round.png
     │   ├── square.png
-    │   ├── pencil.png
     │   ├── ...
-    │   └── drip.png
+    │   └── holographic.png
     ├── brush.png
     ├── eraser.png
     ├── export gif.png
