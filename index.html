@@ -65,6 +65,9 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .ico { width:20px; height:20px; pointer-events:none; filter:invert(0.85); }
 .ico.accent { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
 .onion-on .ico-onion { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
+.btn-label { flex-direction:column; gap:0; width:36px; height:auto; padding:2px; }
+.btn-label .ico { width:18px; height:18px; }
+.btn-text { color:#fff; font-size:7px; line-height:1; text-transform:uppercase; pointer-events:none; }
 
 /* TOOLBAR */
 .toolbar { background:var(--bg-primary); padding:0px 8px 0px 8px; display:flex; align-items:center; gap:2px; min-height:38px; flex-shrink:0; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; touch-action:pan-x; flex-wrap:nowrap; }
@@ -155,7 +158,9 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 @media (max-width:520px) {
   .phone { width:100%; height:calc(var(--vh, 1vh) * 100); border-radius:0; border:none; overflow:hidden; }
   .toolbar { min-height:42px; }
-  .btn { width:28px; height:28px; border-radius:5px; }
+  .btn-label { width:32px; padding:1px; }
+  .btn-label .ico { width:15px; height:15px; }
+  .btn-text { font-size:6px; }
   .ico { width:15px; height:15px; }
   .toolbar .frame-counter { font-size:11px; min-width:36px; line-height:1; }
   .fps-select { font-size:9px; min-width:46px; height:26px; padding:1px 16px 1px 3px; }
@@ -227,10 +232,10 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
       <option value="30">30 fps</option>
       <option value="60">60 fps</option>
     </select>
-    <button class="btn" id="exportGifBtn" title="Export GIF"><img class="ico" src="icons/export gif.png" alt="GIF"></button>
-    <button class="btn" id="exportVideoBtn" title="Export Video"><img class="ico" src="icons/export video.png" alt="Video"></button>
-    <button class="btn" id="saveProjectBtn" title="Save Project"><img class="ico" src="icons/save project.png" alt="Save"></button>
-    <button class="btn" id="openProjectBtn" title="Open Project"><img class="ico" src="icons/open project.png" alt="Open"></button>
+    <button class="btn btn-label" id="exportGifBtn" title="Export GIF"><img class="ico" src="icons/export gif.png" alt="GIF"><span class="btn-text">gif</span></button>
+    <button class="btn btn-label" id="exportVideoBtn" title="Export Video"><img class="ico" src="icons/export video.png" alt="Video"><span class="btn-text">h264</span></button>
+    <button class="btn btn-label" id="saveProjectBtn" title="Save Project"><img class="ico" src="icons/save project.png" alt="Save"><span class="btn-text">save</span></button>
+    <button class="btn btn-label" id="openProjectBtn" title="Open Project"><img class="ico" src="icons/open project.png" alt="Open"><span class="btn-text">open</span></button>
     <input type="file" id="openFileInput" accept=".fap,application/json" style="display:none">
   </div>
 
