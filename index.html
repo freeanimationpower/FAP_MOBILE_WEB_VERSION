@@ -85,6 +85,7 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .brush-strip::-webkit-scrollbar { display:none; }
 .brush-btn { width:28px; height:28px; border-radius:5px; border:1.5px solid var(--border); background:var(--bg-tertiary); color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.12s; padding:0; }
 .brush-btn img { width:18px; height:18px; pointer-events:none; }
+.brush-btn span { font-size:8px; line-height:1; text-align:center; pointer-events:none; }
 .brush-btn:hover { border-color:var(--accent-light); }
 .brush-btn.active { border-color:var(--accent); background:rgba(255,109,0,0.15); color:var(--accent-light); }
 
@@ -273,6 +274,46 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
       <img src="icons/brushes/pixel.png" alt="Pixel">
     </button>
 
+    <button class="brush-btn" data-brush="splatter" title="Splatter">
+      <span>Splatter</span>
+    </button>
+
+    <button class="brush-btn" data-brush="watercolor" title="Watercolor">
+      <span>Watercolor</span>
+    </button>
+
+    <button class="brush-btn" data-brush="charcoal" title="Charcoal">
+      <span>Charcoal</span>
+    </button>
+
+    <button class="brush-btn" data-brush="crayon" title="Crayon">
+      <span>Crayon</span>
+    </button>
+
+    <button class="brush-btn" data-brush="hardEraser" title="Hard Eraser">
+      <span>HardEraser</span>
+    </button>
+
+    <button class="brush-btn" data-brush="dots" title="Dots">
+      <span>Dots</span>
+    </button>
+
+    <button class="brush-btn" data-brush="hatch" title="Crosshatch">
+      <span>Hatch</span>
+    </button>
+
+    <button class="brush-btn" data-brush="neon" title="Neon">
+      <span>Neon</span>
+    </button>
+
+    <button class="brush-btn" data-brush="fur" title="Fur">
+      <span>Fur</span>
+    </button>
+
+    <button class="brush-btn" data-brush="drip" title="Drip">
+      <span>Drip</span>
+    </button>
+
   </div>
 
   <!-- TOOL PANEL -->
@@ -343,7 +384,17 @@ const BRUSHES = {
   ink:         { cap:'round',  join:'round',  scale:1.05, alpha:1.0,  label:'Ink' },
   chalk:       { cap:'butt',   join:'round',  scale:0.5,  alpha:1.0,  jitter:true, label:'Chalk' },
   glow:        { cap:'round',  join:'round',  scale:1.8,  alpha:0.3,  shadow:5, innerSize:0.3, doubleStroke:true, label:'Glow' },
-  pixel:       { cap:'square', join:'miter',  fixed:1,    alpha:1.0,  crisp:true, label:'Pixel' }
+  pixel:       { cap:'square', join:'miter',  fixed:1,    alpha:1.0,  crisp:true, label:'Pixel' },
+  splatter:    { cap:'round',  join:'round',  scale:0.4,  alpha:1.0,  splat:true, label:'Splatter' },
+  watercolor:  { cap:'round',  join:'round',  scale:2.2,  alpha:0.15, water:true, label:'Watercolor' },
+  charcoal:    { cap:'butt',   join:'round',  scale:0.6,  alpha:1.0,  charcoal:true, label:'Charcoal' },
+  crayon:      { cap:'round',  join:'round',  scale:1.1,  alpha:1.0,  crayon:true, label:'Crayon' },
+  hardEraser:  { cap:'square', join:'miter',  scale:1.0,  alpha:1.0,  hardErase:true, label:'Hard Eraser' },
+  dots:        { cap:'round',  join:'round',  scale:0.4,  alpha:1.0,  dots:true, label:'Dots' },
+  hatch:       { cap:'round',  join:'round',  scale:0.5,  alpha:1.0,  hatch:true, label:'Crosshatch' },
+  neon:        { cap:'round',  join:'round',  scale:1.5,  alpha:0.35, shadow:6, innerSize:0.35, doubleStroke:true, label:'Neon' },
+  fur:         { cap:'round',  join:'round',  scale:0.25, alpha:1.0,  fur:true, label:'Fur' },
+  drip:        { cap:'round',  join:'round',  scale:1.2,  alpha:1.0,  drip:true, label:'Drip' }
 };
 
 function setBrushStyle(c, br, color, alpha, lw) {
@@ -605,7 +656,104 @@ function moveDraw(e) {
       c.save();
       setBrushStyle(c, br, color, alpha, lw);
 
-      if (br.doubleStroke) {
+      if (br.splat) {
+        var steps = Math.max(1, Math.floor(dist / (sz * 0.5)));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var sx = lastX + dx * t;
+          var sy = lastY + dy * t;
+          var count = 3 + Math.floor(Math.random() * 4);
+          for (var k = 0; k < count; k++) {
+            var ang = Math.random() * Math.PI * 2;
+            var rd = Math.random() * sz * 3;
+            var sx2 = sx + Math.cos(ang) * rd;
+            var sy2 = sy + Math.sin(ang) * rd;
+            var sr = Math.random() * sz * 0.5 + 0.5;
+            c.beginPath(); c.arc(sx2, sy2, sr, 0, Math.PI * 2); c.fill();
+          }
+        }
+      } else if (br.water) {
+        var layers = [1.0, 0.7, 0.4];
+        for (var L = 0; L < layers.length; L++) {
+          c.globalAlpha = alpha * layers[L] * 0.5;
+          c.lineWidth = Math.max(1, lw * (1.5 - L * 0.3));
+          var wx = lastX + (Math.random() - 0.5) * lw;
+          var wy = lastY + (Math.random() - 0.5) * lw;
+          c.beginPath(); c.moveTo(wx, wy);
+          c.lineTo(p.x + (Math.random() - 0.5) * lw, p.y + (Math.random() - 0.5) * lw);
+          c.stroke();
+        }
+      } else if (br.charcoal) {
+        var steps = Math.max(1, Math.floor(dist / (sz * 0.35)));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var cx = lastX + dx * t + (Math.random() - 0.5) * sz * 6;
+          var cy = lastY + dy * t + (Math.random() - 0.5) * sz * 6;
+          var cs = Math.random() * sz * 0.5 + 0.5;
+          c.globalAlpha = alpha * (0.15 + Math.random() * 0.85);
+          c.fillRect(cx - cs, cy - cs, cs * 2, cs * 2);
+        }
+      } else if (br.crayon) {
+        c.lineWidth = Math.max(1, lw);
+        c.beginPath(); c.moveTo(lastX + (Math.random() - 0.5) * lw * 0.8, lastY + (Math.random() - 0.5) * lw * 0.8);
+        c.lineTo(p.x + (Math.random() - 0.5) * lw * 0.8, p.y + (Math.random() - 0.5) * lw * 0.8);
+        c.stroke();
+      } else if (br.hardErase) {
+        var steps = Math.max(1, Math.floor(dist / (sz * 1.5)));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var ex = lastX + dx * t - sz;
+          var ey = lastY + dy * t - sz;
+          c.fillRect(ex, ey, sz * 2, sz * 2);
+        }
+      } else if (br.dots) {
+        var spacing = lw * 2.5;
+        var steps = Math.max(1, Math.floor(dist / spacing));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var dx2 = lastX + dx * t;
+          var dy2 = lastY + dy * t;
+          c.beginPath(); c.arc(dx2, dy2, sz * 0.6, 0, Math.PI * 2); c.fill();
+        }
+      } else if (br.hatch) {
+        var steps = Math.max(1, Math.floor(dist / (sz * 2)));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var hx = lastX + dx * t;
+          var hy = lastY + dy * t;
+          c.save();
+          c.translate(hx, hy);
+          c.rotate(Math.PI / 4);
+          c.fillRect(-sz * 0.3, -sz * 1.2, sz * 0.6, sz * 2.4);
+          c.rotate(Math.PI / 2);
+          c.fillRect(-sz * 0.3, -sz * 1.2, sz * 0.6, sz * 2.4);
+          c.restore();
+        }
+      } else if (br.fur) {
+        var w = sz * 1.5;
+        var steps = Math.max(1, Math.floor(dist / (sz * 0.5)));
+        for (var j = 0; j <= steps; j++) {
+          var t = j / steps;
+          var fx = lastX + dx * t;
+          var fy = lastY + dy * t;
+          for (var h = 0; h < 7; h++) {
+            var fy2 = fy - w + h * (w * 2) / 6 + (Math.random() - 0.5) * sz * 3;
+            var fx2 = fx + (Math.random() - 0.5) * sz * 2;
+            c.beginPath(); c.arc(fx2, fy2, sz * 0.35, 0, Math.PI * 2); c.fill();
+          }
+        }
+      } else if (br.drip) {
+        c.lineWidth = Math.max(1, lw);
+        c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
+        var dripChance = dist / (sz * 15);
+        if (Math.random() < dripChance * 0.3) {
+          var midX = lastX + dx * 0.5;
+          var midY = lastY + dy * 0.5;
+          c.beginPath(); c.moveTo(midX, midY);
+          c.lineTo(midX + (Math.random() - 0.5) * sz, midY + sz * (2 + Math.random() * 3));
+          c.stroke();
+        }
+      } else if (br.doubleStroke) {
         c.beginPath(); c.moveTo(lastX, lastY); c.lineTo(p.x, p.y); c.stroke();
         c.shadowBlur = 0; c.shadowColor = 'transparent';
         c.globalAlpha = alpha > 0.6 ? alpha : 0.6;
@@ -678,6 +826,49 @@ function drawDot(x, y) {
 
     if (br.fixed) {
       c.fillRect(x - sz, y - sz, sz * 2, sz * 2);
+    } else if (br.splat) {
+      var count = 8 + Math.floor(Math.random() * 8);
+      for (var j = 0; j < count; j++) {
+        var ang = Math.random() * Math.PI * 2;
+        var dist = Math.random() * sz * 3;
+        var jx = x + Math.cos(ang) * dist;
+        var jy = y + Math.sin(ang) * dist;
+        var jr = Math.random() * sz * 0.5 + 0.5;
+        c.beginPath(); c.arc(jx, jy, jr, 0, Math.PI * 2); c.fill();
+      }
+    } else if (br.water) {
+      for (var j = 0; j < 4; j++) {
+        var wx = x + (Math.random() - 0.5) * sz * 3;
+        var wy = y + (Math.random() - 0.5) * sz * 3;
+        var wr = sz * (0.6 + Math.random() * 1.4);
+        c.globalAlpha = alpha * (0.3 + Math.random() * 0.4);
+        c.beginPath(); c.arc(wx, wy, wr, 0, Math.PI * 2); c.fill();
+      }
+    } else if (br.charcoal) {
+      for (var j = 0; j < 12; j++) {
+        var cx = x + (Math.random() - 0.5) * sz * 4;
+        var cy = y + (Math.random() - 0.5) * sz * 4;
+        var cs = Math.random() * sz * 0.5 + 0.5;
+        c.globalAlpha = alpha * (0.2 + Math.random() * 0.8);
+        c.fillRect(cx - cs, cy - cs, cs * 2, cs * 2);
+      }
+    } else if (br.hardErase) {
+      c.fillRect(x - sz, y - sz, sz * 2, sz * 2);
+    } else if (br.hatch) {
+      for (var j = 0; j < 4; j++) {
+        c.save();
+        c.translate(x, y);
+        c.rotate(j * Math.PI / 4);
+        c.fillRect(-sz * 0.3, -sz * 1.2, sz * 0.6, sz * 2.4);
+        c.restore();
+      }
+    } else if (br.fur) {
+      var w = sz * 1.2;
+      for (var j = 0; j < 7; j++) {
+        var fy = y - w + j * (w * 2) / 6;
+        var fx = x + (Math.random() - 0.5) * w;
+        c.beginPath(); c.arc(fx, fy, sz * 0.4, 0, Math.PI * 2); c.fill();
+      }
     } else if (br.jitter) {
       var r2 = sz * 2;
       for (var j = 0; j < 10; j++) {
