@@ -237,4 +237,4 @@ FAP_MOBILE_WEB_VERSION/
 
 ## License
 
-Open source. Free to use, modify, and distribute.
+&copy; Todos los derechos reservados. Free Animation Power by Eduardo Fierro Duque, Santiago de Chile 2026.
