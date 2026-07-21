@@ -1416,7 +1416,7 @@ async function exportVideo() {
   videoCanvas.height = drawCanvas.height;
   const vctx = videoCanvas.getContext('2d');
 
-  const stream = videoCanvas.captureStream(0);
+  const stream = videoCanvas.captureStream(state.fps);
   const track = stream.getVideoTracks()[0];
   const canRequestFrame = track && typeof track.requestFrame === 'function';
 
@@ -1435,30 +1435,36 @@ async function exportVideo() {
   }
 
   const frameDuration = 1000 / state.fps;
+  var frameIdx = 0;
 
-  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-  recorder.onstop = () => {
-    downloadBlob(new Blob(chunks, { type: mimeType }), 'animacion.' + ext);
-  };
+  vctx.fillStyle = '#FFFFFF';
+  vctx.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-  recorder.start();
+  return new Promise(function(resolve) {
+    recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.onstop = function() {
+      downloadBlob(new Blob(chunks, { type: mimeType }), 'animacion.' + ext);
+      resolve();
+    };
 
-  for (let i = 0; i < state.totalFrames; i++) {
-    const src = exportFrame(i);
-    vctx.fillStyle = '#FFFFFF';
-    vctx.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
-    vctx.drawImage(src, 0, 0);
+    recorder.start(100);
 
-    if (canRequestFrame) {
-      track.requestFrame();
+    function drawNext() {
+      if (frameIdx >= state.totalFrames) {
+        recorder.requestData();
+        setTimeout(function() { recorder.stop(); }, frameDuration);
+        return;
+      }
+      var src = exportFrame(frameIdx);
+      vctx.fillStyle = '#FFFFFF';
+      vctx.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
+      vctx.drawImage(src, 0, 0);
+      if (canRequestFrame) track.requestFrame();
+      frameIdx++;
+      setTimeout(drawNext, frameDuration);
     }
-
-    if (i < state.totalFrames - 1) {
-      await new Promise(r => setTimeout(r, frameDuration));
-    }
-  }
-
-  recorder.stop();
+    drawNext();
+  });
 }
 
 // ─── EXPORT EVENTS ───────────────────
