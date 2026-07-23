@@ -4,6 +4,7 @@
 
 <img width="1254" height="1254" alt="FAP MOLE WEB VERSION" src="https://github.com/user-attachments/assets/36bc2bde-46bd-4c2d-a328-fa77785a7433" />
 
+> **Accede desde la web**: [freeanimationpower.org](https://freeanimationpower.org) — Hub central con todas las herramientas FAP. Sin instalacion.
 
 ---
 
