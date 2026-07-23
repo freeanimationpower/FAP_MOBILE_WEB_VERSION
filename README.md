@@ -2,7 +2,8 @@
 
 **FAP** (Free Animation Power) is a mobile-first, zero-backend 2D animation web application. Draw frame-by-frame, use professional onion skinning, choose from 20 brushes, and export your animations as GIF or video — all from your phone's browser.
 
-<img width="1368" height="1202" alt="LOGO FREE ANIMATION POWER con bg" src="https://github.com/user-attachments/assets/0ef5dabd-c3b8-4c6f-abdf-ab4470b2c3f9" />
+<img width="1254" height="1254" alt="FAP MOLE WEB VERSION" src="https://github.com/user-attachments/assets/36bc2bde-46bd-4c2d-a328-fa77785a7433" />
+
 
 ---
 
