@@ -131,8 +131,9 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .timeline::-webkit-scrollbar { height:14px; }
 .timeline::-webkit-scrollbar-track { background:var(--bg-tertiary); border-radius:7px; }
 .timeline::-webkit-scrollbar-thumb { background:var(--accent); border-radius:7px; }
-.timeline .go-start { width:30px; height:50px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:16px; background:var(--bg-tertiary); border-radius:5px; }
+.timeline .go-start { width:30px; height:50px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); background:var(--bg-tertiary); border-radius:5px; }
 .timeline .go-start:hover { color:#fff; }
+.timeline .go-start svg { width:20px; height:20px; pointer-events:none; }
 .frame-box { width:50px; height:50px; border-radius:5px; background:var(--bg-tertiary); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all 0.12s; color:var(--text-secondary); font-size:13px; }
 .frame-box:hover { border-color:var(--accent-light); }
 .frame-box.active { background:var(--accent); border-color:var(--accent-light); color:#fff; font-weight:700; box-shadow:0 0 5px rgba(255,109,0,0.4); }
@@ -172,7 +173,8 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
   .tl-scroll-btn { width:30px; min-width:30px; font-size:15px; }
   .timeline { padding:3px 2px; min-height:48px; gap:2px; }
   .timeline-wrap { padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px)); }
-  .timeline .go-start { width:24px; height:34px; font-size:12px; }
+  .timeline .go-start { width:24px; height:34px; }
+  .timeline .go-start svg { width:14px; height:14px; }
   .slider-group input[type="range"] { width:36px; }
   .tool-panel .slider-label { font-size:9px; width:8px; }
   .tool-panel .slider-value { font-size:9px; min-width:18px; }
@@ -1977,7 +1979,7 @@ document.getElementById('fpsSelector').addEventListener('change', function() {
 // ─── TIMELINE ───────────────────────
 const timeline = document.getElementById('timeline');
 function renderTimeline() {
-  let html = '<div class="go-start" title="Go to start">⏮</div>';
+  let html = '<div class="go-start" title="Go to start"><svg viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="3" x2="3" y2="21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polygon points="8,12 19,5 19,19" fill="currentColor"/></svg></div>';
   for (let i = 0; i < state.totalFrames; i++) {
     html += `<div class="frame-box${i===state.currentFrame?' active':''}">${i+1}</div>`;
   }
