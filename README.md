@@ -8,6 +8,12 @@
 
 ---
 
+## Documentacion Tecnica
+
+- [Informe Tecnico FAP Mobile](informes_pdf/02_FAP_Mobile_Web.pdf) — Documento completo de arquitectura, stack tecnologico, diagramas de flujo y especificaciones tecnicas de la version mobile PWA.
+
+---
+
 ## Credits
 
 **Design & Development:** Eduardo Fierro Duque
