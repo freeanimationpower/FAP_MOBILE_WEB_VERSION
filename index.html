@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="/favicon.png">
 <title>FAP Mobile</title>
 <style>
 :root {
@@ -43,6 +44,7 @@ body::-webkit-scrollbar { width:12px; }
 body::-webkit-scrollbar-track { background:#1a1a1a; }
 body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .phone {
+  position: relative;
   width: 390px;
   height: 844px;
   background: #0a0a0f;
@@ -65,6 +67,7 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .ico { width:20px; height:20px; pointer-events:none; filter:invert(0.85); }
 .ico.accent { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
 .tool-panel .btn svg { width:18px; height:18px; pointer-events:none; }
+.toolbar .btn svg { width:18px; height:18px; pointer-events:none; color:var(--text-primary); }
 .onion-on .ico-onion-svg { filter:invert(55%) sepia(98%) saturate(2500%) hue-rotate(2deg) brightness(105%); }
 .tool-panel .btn svg { color:var(--text-primary); }
 .btn-label { flex-direction:column; gap:0; width:36px; height:auto; padding:2px; }
@@ -125,6 +128,24 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
 .tool-panel input[type="range"] { -webkit-appearance:none; appearance:none; width:60px; height:4px; border-radius:2px; background:var(--border); outline:none; cursor:pointer; }
 .tool-panel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:1.5px solid var(--accent-light); }
 .tool-panel .slider-value { color:var(--text-primary); font-size:11px; min-width:25px; text-align:center; }
+
+/* SIZE DIALOG */
+.size-btn { width:auto; min-width:46px; height:34px; padding:0 8px; border:1.5px solid var(--border); border-radius:6px; }
+.size-btn #sizeValue { color:var(--accent-light); font-size:13px; font-weight:700; pointer-events:none; }
+.size-dialog-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:100; }
+.size-dialog { background:var(--bg-secondary); border:1.5px solid var(--accent); border-radius:14px; padding:16px; width:min(290px, 88%); box-shadow:0 12px 50px rgba(0,0,0,0.6); }
+.size-dialog-title { color:var(--text-primary); font-size:14px; font-weight:700; text-align:center; margin-bottom:12px; }
+.size-dialog-row { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:12px; }
+.size-step { width:46px; height:46px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-tertiary); color:var(--accent-light); font-size:26px; font-weight:700; cursor:pointer; line-height:1; display:flex; align-items:center; justify-content:center; padding:0; }
+.size-step:active { background:var(--accent); color:#fff; transform:scale(0.92); }
+.size-dialog-row input { width:96px; height:46px; text-align:center; font-size:22px; font-weight:700; color:var(--text-primary); background:var(--bg-tertiary); border:1.5px solid var(--border); border-radius:10px; outline:none; -webkit-user-select:text; user-select:text; }
+.size-dialog-row input:focus { border-color:var(--accent); }
+.size-dialog-preview { display:flex; align-items:center; justify-content:center; height:70px; margin-bottom:12px; background:var(--bg-tertiary); border-radius:10px; overflow:hidden; }
+.size-dot { border-radius:50%; background:var(--accent); border:1.5px solid var(--accent-light); transition:width 0.1s, height 0.1s; }
+.size-dialog-actions { display:flex; gap:10px; }
+.size-dialog-cancel, .size-dialog-ok { flex:1; height:42px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; border:none; }
+.size-dialog-cancel { background:var(--bg-tertiary); color:var(--text-secondary); }
+.size-dialog-ok { background:var(--accent); color:#fff; }
 
 /* TIMELINE */
 .timeline { background:var(--bg-timeline); padding:8px 6px; display:flex; gap:4px; overflow-x:auto; flex:1; min-height:72px; align-items:center; }
@@ -214,6 +235,8 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
     <span class="frame-counter" id="frameCounter">0 / 24</span>
     <button class="btn" title="Add Frame"><img class="ico" src="icons/add_frame.png" alt="+"></button>
     <button class="btn" title="Remove Frame"><img class="ico" src="icons/remove_frame.png" alt="-"></button>
+    <button class="btn" id="copyFrameBtn" title="Copy Frame"><svg viewBox="0 0 24 24" style="pointer-events:none"><rect x="8.5" y="8.5" width="11" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5V5.5A1.5 1.5 0 0 0 14 4H5.5A1.5 1.5 0 0 0 4 5.5V14A1.5 1.5 0 0 0 5.5 15.5h3" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    <button class="btn" id="pasteFrameBtn" title="Paste Frame" disabled><svg viewBox="0 0 24 24" style="pointer-events:none"><rect x="5" y="4.5" width="14" height="16.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 4.5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2V6H9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 11h6M9 14.5h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <span class="fps-label">FPS</span>
     <select id="fpsSelector" class="fps-select">
       <option value="8">8 fps</option>
@@ -446,13 +469,30 @@ body::-webkit-scrollbar-thumb { background:var(--accent); border-radius:6px; }
     <button class="btn onion-on" id="onionBtn" title="Onion Skin"><svg class="ico-onion-svg" viewBox="0 0 24 24" width="16" height="16" style="pointer-events:none"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2 A10 10 0 0 0 12 22" fill="currentColor" opacity="0.5"/></svg></button>
     <button class="btn" id="handBtn" title="Hand / Pan"><img class="ico" src="icons/hand.png" alt="Hand"></button>
     <div style="width:4px;flex-shrink:0"></div>
-    <div class="slider-group"><span class="slider-label">S</span><input type="range" id="sizeSlider" min="1" max="80" value="5" step="1"><span class="slider-value" id="sizeValue">5px</span></div>
+    <button class="btn size-btn" id="sizeBtn" title="Tamaño del pincel"><span id="sizeValue">5px</span></button>
     <div style="width:2px;flex-shrink:0"></div>
     <div class="slider-group"><span class="slider-label">O</span><input type="range" id="opacitySlider" min="5" max="100" value="100" step="5"><span class="slider-value" id="opacityValue">100%</span></div>
     <div style="flex:1"></div>
     <button class="btn" id="zoomInBtn" title="Zoom In"><svg viewBox="0 0 24 24" width="18" height="18" style="pointer-events:none"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
     <button class="btn" id="zoomOutBtn" title="Zoom Out"><svg viewBox="0 0 24 24" width="18" height="18" style="pointer-events:none"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
     <button class="btn" id="zoomResetBtn" title="Reset Zoom"><img class="ico" src="icons/LUPA.png" alt="Zoom"></button>
+  </div>
+
+  <!-- SIZE DIALOG -->
+  <div class="size-dialog-overlay" id="sizeDialog" style="display:none">
+    <div class="size-dialog">
+      <div class="size-dialog-title">Tamaño del pincel</div>
+      <div class="size-dialog-row">
+        <button class="size-step" id="sizeMinus" type="button">&#8722;</button>
+        <input type="number" id="sizeInput" min="1" max="200" step="1" inputmode="numeric" pattern="[0-9]*">
+        <button class="size-step" id="sizePlus" type="button">+</button>
+      </div>
+      <div class="size-dialog-preview"><div class="size-dot" id="sizeDot"></div></div>
+      <div class="size-dialog-actions">
+        <button class="size-dialog-cancel" id="sizeCancel" type="button">Cancelar</button>
+        <button class="size-dialog-ok" id="sizeOk" type="button">OK</button>
+      </div>
+    </div>
   </div>
 
   <!-- TIMELINE -->
@@ -504,6 +544,7 @@ const state = {
 const viewport = { zoom:1, panX:0, panY:0, minZoom:0.3, maxZoom:5 };
 let isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
 var exportCounter = 0;
+let frameClipboard = null;
 
 function nextExportName(ext) {
   exportCounter++;
@@ -511,7 +552,7 @@ function nextExportName(ext) {
   return 'FREEANIMATIONPOWER_' + num + '.' + ext;
 }
 
-// ─── BRUSHES ────────────────────────
+// â”€â”€â”€ BRUSHES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const BRUSHES = {
   round:       { cap:'round',  join:'round',  scale:1.0,  alpha:1.0,  label:'Round' },
   square:      { cap:'square', join:'miter',  scale:1.0,  alpha:1.0,  label:'Square' },
@@ -595,7 +636,7 @@ function darkenColor(hex, factor) {
   return '#' + ((1<<24)+(Math.floor(r*factor)<<16)+(Math.floor(g*factor)<<8)+Math.floor(b*factor)).toString(16).slice(1);
 }
 
-// ─── ICONS ────────────────────────
+// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ICONS = {
   undo: 'icons/undo.png', redo: 'icons/redo.png',
   prev: 'icons/previous frame.png', play: 'icons/play pause.png',
@@ -606,7 +647,7 @@ const ICONS = {
   logo: 'icons/logo.png'
 };
 
-// ─── COLORS ────────────────────────
+// â”€â”€â”€ COLORS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const colorStrip = document.getElementById('colorStrip');
 function renderColors() {
   colorStrip.innerHTML = COLORS.map(c =>
@@ -639,7 +680,7 @@ function resetViewport() {
   applyViewport();
 }
 
-// ─── CANVAS ────────────────────────
+// â”€â”€â”€ CANVAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const drawCanvas = document.getElementById('drawCanvas');
 const canvasSurface = drawCanvas.parentElement;
 const ctx = drawCanvas.getContext('2d');
@@ -659,6 +700,9 @@ function ensureFrameCanvas(key) {
     frameCanvases[key] = document.createElement('canvas');
     frameCanvases[key].width = frameBuffer.width;
     frameCanvases[key].height = frameBuffer.height;
+    const nctx = frameCanvases[key].getContext('2d');
+    nctx.fillStyle = '#FFFFFF';
+    nctx.fillRect(0, 0, frameCanvases[key].width, frameCanvases[key].height);
   }
 }
 
@@ -680,6 +724,9 @@ function resizeCanvas() {
     storage.tmp.width = w;
     storage.tmp.height = h;
     clearAllFrameData();
+    frameClipboard = null;
+    const pb = document.getElementById('pasteFrameBtn');
+    if (pb) pb.disabled = true;
     loadFrame(state.currentFrame);
   }
 }
@@ -1901,7 +1948,7 @@ drawCanvas.addEventListener('touchcancel', endDraw);
 // Pointer events (unified mouse + touch + stylus with pressure)
 drawCanvas.addEventListener('pointerdown', e => {
   if (e.pointerType === 'pen') {
-    // Tablet stylus detected — log for debug
+    // Tablet stylus detected &mdash; log for debug
     console.log('Stylus:', e.pointerType, 'pressure:', e.pressure, 'tiltX:', e.tiltX, 'tiltY:', e.tiltY);
   }
 });
@@ -1915,7 +1962,7 @@ drawCanvas.addEventListener('pointermove', e => {
   }
 });
 
-// ─── TOOLS ──────────────────────────
+// â”€â”€â”€ TOOLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setTool(name) {
   state.activeTool = name;
   document.querySelectorAll('.tool-panel .btn').forEach(b => b.classList.remove('active'));
@@ -1936,7 +1983,7 @@ document.getElementById('eraserBtn').addEventListener('click', () => setTool('er
 document.getElementById('fillBtn').addEventListener('click', () => setTool('fill'));
 document.getElementById('handBtn').addEventListener('click', () => setTool('hand'));
 
-// ─── BRUSH SELECTOR ──────────────────
+// â”€â”€â”€ BRUSH SELECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('brushStrip').addEventListener('click', function(e) {
   var btn = e.target.closest('.brush-btn');
   if (!btn) return;
@@ -1945,29 +1992,75 @@ document.getElementById('brushStrip').addEventListener('click', function(e) {
   btn.classList.add('active');
 });
 
-// ─── ZOOM ────────────────────────────
+// â”€â”€â”€ ZOOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
 document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
 document.getElementById('zoomResetBtn').addEventListener('click', resetViewport);
 
-// ─── ONION SKIN ─────────────────────
+// â”€â”€â”€ ONION SKIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('onionBtn').addEventListener('click', function() {
   state.onionEnabled = !state.onionEnabled;
   this.classList.toggle('onion-on', state.onionEnabled);
   loadFrame(state.currentFrame);
 });
 
-// ─── SLIDERS ────────────────────────
-document.getElementById('sizeSlider').addEventListener('input', function() {
-  state.brushSize = +this.value;
-  document.getElementById('sizeValue').textContent = this.value + 'px';
-});
+// â”€â”€â”€ SLIDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('opacitySlider').addEventListener('input', function() {
   state.brushOpacity = +this.value;
   document.getElementById('opacityValue').textContent = this.value + '%';
 });
 
-// ─── FPS SELECTOR ────────────────────
+const sizeBtn = document.getElementById('sizeBtn');
+const sizeDialog = document.getElementById('sizeDialog');
+const sizeInput = document.getElementById('sizeInput');
+const sizeDot = document.getElementById('sizeDot');
+
+function clampSize(v) {
+  if (isNaN(v)) return state.brushSize;
+  return Math.max(1, Math.min(200, Math.round(v)));
+}
+function updateSizeUI() {
+  document.getElementById('sizeValue').textContent = state.brushSize + 'px';
+}
+function updateSizePreview() {
+  const v = clampSize(parseInt(sizeInput.value, 10));
+  const px = Math.min(120, Math.max(8, v * 0.9));
+  sizeDot.style.width = px + 'px';
+  sizeDot.style.height = px + 'px';
+}
+function openSizeDialog() {
+  sizeInput.value = state.brushSize;
+  updateSizePreview();
+  sizeDialog.style.display = 'flex';
+  setTimeout(function() { sizeInput.focus(); sizeInput.select(); }, 60);
+}
+function closeSizeDialog() { sizeDialog.style.display = 'none'; }
+function applySize() {
+  state.brushSize = clampSize(parseInt(sizeInput.value, 10));
+  sizeInput.value = state.brushSize;
+  updateSizeUI();
+  closeSizeDialog();
+}
+
+sizeBtn.addEventListener('click', openSizeDialog);
+document.getElementById('sizePlus').addEventListener('click', function() {
+  sizeInput.value = clampSize(parseInt(sizeInput.value, 10) + 1);
+  updateSizePreview();
+});
+document.getElementById('sizeMinus').addEventListener('click', function() {
+  sizeInput.value = clampSize(parseInt(sizeInput.value, 10) - 1);
+  updateSizePreview();
+});
+sizeInput.addEventListener('input', updateSizePreview);
+sizeInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); applySize(); }
+  if (e.key === 'Escape') { e.preventDefault(); closeSizeDialog(); }
+});
+document.getElementById('sizeOk').addEventListener('click', applySize);
+document.getElementById('sizeCancel').addEventListener('click', closeSizeDialog);
+sizeDialog.addEventListener('click', function(e) { if (e.target === sizeDialog) closeSizeDialog(); });
+
+// â”€â”€â”€ FPS SELECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('fpsSelector').addEventListener('change', function() {
   state.fps = +this.value;
   if (state.isPlaying) {
@@ -1976,7 +2069,7 @@ document.getElementById('fpsSelector').addEventListener('change', function() {
   }
 });
 
-// ─── TIMELINE ───────────────────────
+// â”€â”€â”€ TIMELINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const timeline = document.getElementById('timeline');
 function renderTimeline() {
   let html = '<div class="go-start" title="Go to start"><svg viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="3" x2="3" y2="21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polygon points="8,12 19,5 19,19" fill="currentColor"/></svg></div>';
@@ -2010,7 +2103,7 @@ function renderTimeline() {
   updateTimelineArrows();
 }
 
-// ─── TIMELINE SCROLL BUTTONS ─────────
+// â”€â”€â”€ TIMELINE SCROLL BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const tlLeft = document.getElementById('tlScrollLeft');
 const tlRight = document.getElementById('tlScrollRight');
 
@@ -2043,7 +2136,56 @@ function selectFrame(i) {
   }
 }
 
-// ─── TOOLBAR ACTIONS ────────────────
+// ─── COPY / PASTE FRAMES ─────────────────────────────────
+function copyCurrentFrame() {
+  const key = `frame_${state.currentFrame}`;
+  ensureFrameCanvas(key);
+  const src = frameCanvases[key];
+  if (!frameClipboard) frameClipboard = document.createElement('canvas');
+  frameClipboard.width = src.width;
+  frameClipboard.height = src.height;
+  frameClipboard.getContext('2d').drawImage(src, 0, 0);
+  document.getElementById('pasteFrameBtn').disabled = false;
+  const cb = document.getElementById('copyFrameBtn');
+  cb.classList.add('active');
+  setTimeout(function() { cb.classList.remove('active'); }, 250);
+}
+
+function moveFrameKey(from, to) {
+  const s = `frame_${from}`, d = `frame_${to}`;
+  [frameCanvases, strokeCanvases, undoStacks, redoStacks].forEach(function(obj) {
+    if (obj[s]) { obj[d] = obj[s]; delete obj[s]; } else { delete obj[d]; }
+  });
+}
+
+function removeFrameAt(index) {
+  delete frameCanvases[`frame_${index}`];
+  delete strokeCanvases[`frame_${index}`];
+  delete undoStacks[`frame_${index}`];
+  delete redoStacks[`frame_${index}`];
+  for (let i = index + 1; i < state.totalFrames; i++) moveFrameKey(i, i - 1);
+  state.totalFrames--;
+}
+
+function pasteFrameOntoCurrent() {
+  if (!frameClipboard) return;
+  const key = `frame_${state.currentFrame}`;
+  if (!undoStacks[key]) undoStacks[key] = [];
+  ensureFrameCanvas(key);
+  undoStacks[key].push(
+    frameCanvases[key].getContext('2d').getImageData(0, 0, frameCanvases[key].width, frameCanvases[key].height)
+  );
+  if (undoStacks[key].length > MAX_UNDO) undoStacks[key].shift();
+  if (redoStacks[key]) redoStacks[key] = [];
+  const fc = frameCanvases[key];
+  const fctx = fc.getContext('2d');
+  fctx.clearRect(0, 0, fc.width, fc.height);
+  fctx.drawImage(frameClipboard, 0, 0);
+  delete strokeCanvases[key];
+  loadFrame(state.currentFrame);
+}
+
+// â”€â”€â”€ TOOLBAR ACTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateCounter() {
   document.getElementById('frameCounter').textContent = state.currentFrame + ' / ' + state.totalFrames;
 }
@@ -2067,15 +2209,30 @@ document.querySelector('.toolbar').addEventListener('click', e => {
   }
   else if (title === 'Remove Frame') {
     if (state.totalFrames <= 1) return;
-    state.totalFrames--;
+    removeFrameAt(state.currentFrame);
     if (state.currentFrame >= state.totalFrames) state.currentFrame = state.totalFrames - 1;
     loadFrame(state.currentFrame);
     updateCounter();
     renderTimeline();
   }
+  else if (title === 'Copy Frame') copyCurrentFrame();
+  else if (title === 'Paste Frame') pasteFrameOntoCurrent();
 });
 
-// ─── UNDO / REDO ────────────────────
+// â”€â”€â”€ UNDO / REDO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function restoreFrameSnapshot(key, imgData) {
+  const fc = frameCanvases[key];
+  const fctx = fc.getContext('2d');
+  storage.tmp.width = imgData.width;
+  storage.tmp.height = imgData.height;
+  storage.tmp.getContext('2d').putImageData(imgData, 0, 0);
+  fctx.clearRect(0, 0, fc.width, fc.height);
+  fctx.fillStyle = '#FFFFFF';
+  fctx.fillRect(0, 0, fc.width, fc.height);
+  fctx.drawImage(storage.tmp, 0, 0);
+  delete strokeCanvases[key];
+}
+
 function undoStroke() {
   const key = `frame_${state.currentFrame}`;
   const stack = undoStacks[key];
@@ -2092,8 +2249,7 @@ function undoStroke() {
 
   const prev = stack.pop();
   ensureFrameCanvas(key);
-  frameCanvases[key].getContext('2d').putImageData(prev, 0, 0);
-  delete strokeCanvases[key];
+  restoreFrameSnapshot(key, prev);
   loadFrame(state.currentFrame);
 }
 
@@ -2113,12 +2269,11 @@ function redoStroke() {
 
   const next = stack.pop();
   ensureFrameCanvas(key);
-  frameCanvases[key].getContext('2d').putImageData(next, 0, 0);
-  delete strokeCanvases[key];
+  restoreFrameSnapshot(key, next);
   loadFrame(state.currentFrame);
 }
 
-// ─── PLAYBACK ───────────────────────
+// â”€â”€â”€ PLAYBACK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let playRafId = null;
 let playAccumulator = 0;
 let playLastTime = 0;
@@ -2162,15 +2317,17 @@ function togglePlay() {
   }
 }
 
-// ─── KEYBOARD ───────────────────────
+// â”€â”€â”€ KEYBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); e.shiftKey ? redoStroke() : undoStroke(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c' && sizeDialog.style.display === 'none') { e.preventDefault(); copyCurrentFrame(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'v' && sizeDialog.style.display === 'none') { e.preventDefault(); pasteFrameOntoCurrent(); }
   if (e.key === 'ArrowLeft') { e.preventDefault(); selectFrame(Math.max(0, state.currentFrame - 1)); }
   if (e.key === 'ArrowRight') { e.preventDefault(); selectFrame(Math.min(state.totalFrames - 1, state.currentFrame + 1)); }
   if (e.key === ' ') { e.preventDefault(); togglePlay(); }
 });
 
-// ─── DOWNLOAD HELPER ─────────────────
+// â”€â”€â”€ DOWNLOAD HELPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2180,11 +2337,116 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
-// ─── EXPORT GIF ──────────────────────
+// â”€â”€â”€ MEDIAN-CUT PALETTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function buildMedianCutPalette(frameData, maxColors) {
+  maxColors = maxColors || 256;
+
+  // Global RGB histogram across all frames
+  const freq = new Map();
+  for (let f = 0; f < frameData.length; f++) {
+    const d = frameData[f].data;
+    for (let i = 0; i < d.length; i += 4) {
+      const k = (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
+      freq.set(k, (freq.get(k) || 0) + 1);
+    }
+  }
+
+  const n = freq.size;
+  if (n === 0) return [[255, 255, 255]];
+  if (n <= maxColors) {
+    const out = [];
+    for (const k of freq.keys()) out.push([(k >> 16) & 255, (k >> 8) & 255, k & 255]);
+    return out;
+  }
+
+  const rs = new Uint8Array(n);
+  const gs = new Uint8Array(n);
+  const bs = new Uint8Array(n);
+  const counts = new Uint32Array(n);
+  let ci = 0;
+  for (const [k, c] of freq) {
+    rs[ci] = (k >> 16) & 255;
+    gs[ci] = (k >> 8) & 255;
+    bs[ci] = k & 255;
+    counts[ci] = c;
+    ci++;
+  }
+
+  let idxs = new Array(n);
+  let total = 0;
+  for (let i = 0; i < n; i++) { idxs[i] = i; total += counts[i]; }
+
+  let boxes = [{ idxs: idxs, count: total }];
+
+  while (boxes.length < maxColors) {
+    let bi = -1;
+    for (let i = 0; i < boxes.length; i++) {
+      if (boxes[i].idxs.length < 2) continue;
+      if (bi === -1 || boxes[i].count > boxes[bi].count) bi = i;
+    }
+    if (bi === -1) break;
+    const box = boxes[bi];
+
+    let minR = 255, maxR = 0, minG = 255, maxG = 0, minB = 255, maxB = 0;
+    for (let i = 0; i < box.idxs.length; i++) {
+      const ii = box.idxs[i];
+      const r = rs[ii], g = gs[ii], b = bs[ii];
+      if (r < minR) minR = r;
+      if (r > maxR) maxR = r;
+      if (g < minG) minG = g;
+      if (g > maxG) maxG = g;
+      if (b < minB) minB = b;
+      if (b > maxB) maxB = b;
+    }
+    const rangeR = maxR - minR;
+    const rangeG = maxG - minG;
+    const rangeB = maxB - minB;
+    let ch = 0;
+    if (rangeG >= rangeR && rangeG >= rangeB) ch = 1;
+    else if (rangeB >= rangeR) ch = 2;
+
+    const vals = ch === 0 ? rs : (ch === 1 ? gs : bs);
+    box.idxs.sort(function(a, b) { return vals[a] - vals[b]; });
+
+    const half = box.count / 2;
+    let acc = 0, split = 0;
+    for (let i = 0; i < box.idxs.length; i++) {
+      acc += counts[box.idxs[i]];
+      split = i;
+      if (acc >= half) break;
+    }
+    split = Math.min(split + 1, box.idxs.length - 1);
+
+    const left = box.idxs.slice(0, split);
+    const right = box.idxs.slice(split);
+    let leftCount = 0;
+    for (let i = 0; i < left.length; i++) leftCount += counts[left[i]];
+
+    boxes[bi] = { idxs: left, count: leftCount };
+    boxes.push({ idxs: right, count: box.count - leftCount });
+  }
+
+  const palette = [];
+  for (let b2 = 0; b2 < boxes.length; b2++) {
+    const box = boxes[b2];
+    let sr = 0, sg = 0, sb = 0, sc = 0;
+    for (let i = 0; i < box.idxs.length; i++) {
+      const ii = box.idxs[i];
+      sr += rs[ii] * counts[ii];
+      sg += gs[ii] * counts[ii];
+      sb += bs[ii] * counts[ii];
+      sc += counts[ii];
+    }
+    palette.push([Math.round(sr / sc), Math.round(sg / sc), Math.round(sb / sc)]);
+  }
+  return palette;
+}
+
+// â”€â”€â”€ EXPORT GIF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function exportGIF() {
   if (state.isPlaying) togglePlay();
 
-  const GIF_W = Math.min(320, drawCanvas.width);
+  const GIF_W = Math.min(960, drawCanvas.width);
   const GIF_H = Math.round(GIF_W * (drawCanvas.height / drawCanvas.width));
 
   const frameData = [];
@@ -2193,26 +2455,23 @@ async function exportGIF() {
     const c = document.createElement('canvas');
     c.width = GIF_W; c.height = GIF_H;
     const oc = c.getContext('2d');
+    oc.fillStyle = '#FFFFFF';
+    oc.fillRect(0, 0, GIF_W, GIF_H);
+    oc.imageSmoothingEnabled = true;
+    oc.imageSmoothingQuality = 'high';
     oc.drawImage(src, 0, 0, GIF_W, GIF_H);
     frameData.push(oc.getImageData(0, 0, GIF_W, GIF_H));
     if (i % 5 === 0) await new Promise(function(r) { setTimeout(r, 0); });
   }
 
-  // Build global palette
-  const freq = {};
-  for (const imgData of frameData) {
-    const d = imgData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const k = d[i] + ',' + d[i+1] + ',' + d[i+2];
-      freq[k] = (freq[k] || 0) + 1;
-    }
-  }
-  const sorted = Object.entries(freq).sort(function(a, b) { return b[1] - a[1]; });
-  const palette = [];
-  for (let i = 0; i < Math.min(256, sorted.length); i++) {
-    palette.push(sorted[i][0].split(',').map(Number));
-  }
+  // Build global palette (median-cut over all frames)
+  const palette = buildMedianCutPalette(frameData, 256);
   while (palette.length < 256) palette.push([0, 0, 0]);
+
+  const paletteMap = new Map();
+  for (let pmi = 0; pmi < palette.length; pmi++) {
+    paletteMap.set(palette[pmi][0] + ',' + palette[pmi][1] + ',' + palette[pmi][2], pmi);
+  }
 
   // Precompute color cube for O(1) palette lookup (32 steps per channel)
   var CUBE_BITS = 5;
@@ -2235,6 +2494,15 @@ async function exportGIF() {
     }
   }
   await new Promise(function(r) { setTimeout(r, 0); });
+
+  const shift = 8 - CUBE_BITS;
+  const stride = CUBE_SIZE * CUBE_SIZE;
+  function gifColorIndex(r, g, b) {
+    const ri = (r | 0), gi = (g | 0), bi = (b | 0);
+    const hit = paletteMap.get(ri + ',' + gi + ',' + bi);
+    if (hit !== undefined) return hit;
+    return cube[(ri >> shift) * stride + (gi >> shift) * CUBE_SIZE + (bi >> shift)];
+  }
 
   var bytes = [];
   var b = function(v) { bytes.push(v & 0xFF); };
@@ -2263,16 +2531,58 @@ async function exportGIF() {
     // Image descriptor
     b(0x2C); ss(0); ss(0); ss(GIF_W); ss(GIF_H); b(0x00);
 
-    // Map pixels to palette indices using color cube O(1) per pixel
+    // Map pixels to palette indices with Floyd-Steinberg dithering
     var d = frameData[fi].data;
-    var indices = [];
-    var shift = 8 - CUBE_BITS;
-    var stride = CUBE_SIZE * CUBE_SIZE;
-    for (var i = 0; i < d.length; i += 4) {
-      var ri = d[i] >> shift;
-      var gi = d[i + 1] >> shift;
-      var bi = d[i + 2] >> shift;
-      indices.push(cube[ri * stride + gi * CUBE_SIZE + bi]);
+    var W = GIF_W, H = GIF_H;
+    var indices = new Uint8Array(W * H);
+    var errR = new Float32Array(W * H);
+    var errG = new Float32Array(W * H);
+    var errB = new Float32Array(W * H);
+    for (var y = 0; y < H; y++) {
+      var ltr = (y % 2 === 0);
+      for (var s = 0; s < W; s++) {
+        var x = ltr ? s : W - 1 - s;
+        var pi = y * W + x;
+        var p4 = pi * 4;
+        var rr = d[p4] + errR[pi];
+        var gg = d[p4 + 1] + errG[pi];
+        var bb = d[p4 + 2] + errB[pi];
+        if (rr < 0) rr = 0; else if (rr > 255) rr = 255;
+        if (gg < 0) gg = 0; else if (gg > 255) gg = 255;
+        if (bb < 0) bb = 0; else if (bb > 255) bb = 255;
+        var ci = gifColorIndex(rr, gg, bb);
+        indices[pi] = ci;
+        var er = rr - palette[ci][0];
+        var eg = gg - palette[ci][1];
+        var eb = bb - palette[ci][2];
+        var nx = ltr ? x + 1 : x - 1;
+        var ox = ltr ? x - 1 : x + 1;
+        var ny = y + 1;
+        if (nx >= 0 && nx < W) {
+          var q = y * W + nx;
+          errR[q] += er * 0.4375;
+          errG[q] += eg * 0.4375;
+          errB[q] += eb * 0.4375;
+        }
+        if (ny < H) {
+          if (ox >= 0 && ox < W) {
+            var q1 = ny * W + ox;
+            errR[q1] += er * 0.1875;
+            errG[q1] += eg * 0.1875;
+            errB[q1] += eb * 0.1875;
+          }
+          var q2 = ny * W + x;
+          errR[q2] += er * 0.3125;
+          errG[q2] += eg * 0.3125;
+          errB[q2] += eb * 0.3125;
+          if (nx >= 0 && nx < W) {
+            var q3 = ny * W + nx;
+            errR[q3] += er * 0.0625;
+            errG[q3] += eg * 0.0625;
+            errB[q3] += eb * 0.0625;
+          }
+        }
+      }
     }
 
     // LZW encode
@@ -2343,7 +2653,7 @@ async function exportGIF() {
   downloadBlob(new Blob([new Uint8Array(bytes)], { type: 'image/gif' }), nextExportName('gif'));
 }
 
-// ─── EXPORT VIDEO ────────────────────
+// â”€â”€â”€ EXPORT VIDEO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function exportVideo() {
   if (state.isPlaying) togglePlay();
 
@@ -2403,7 +2713,7 @@ async function exportVideo() {
   });
 }
 
-// ─── SAVE / LOAD PROJECT ─────────────
+// â”€â”€â”€ SAVE / LOAD PROJECT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function saveProject() {
   var data = { v:1, fps:state.fps, total:state.totalFrames, frames:{} };
   for (var i = 0; i < state.totalFrames; i++) {
@@ -2421,6 +2731,8 @@ function loadFrameFromPNG(src, idx) {
       ensureFrameCanvas('frame_' + idx);
       var fctx = frameCanvases['frame_' + idx].getContext('2d');
       fctx.clearRect(0, 0, fctx.canvas.width, fctx.canvas.height);
+      fctx.fillStyle = '#FFFFFF';
+      fctx.fillRect(0, 0, fctx.canvas.width, fctx.canvas.height);
       fctx.drawImage(img, 0, 0);
       resolve();
     };
@@ -2452,21 +2764,21 @@ function loadProjectFile(file) {
         loadFrame(0);
         updateCounter();
         renderTimeline();
-        console.log('FAP: proyecto cargado — ' + state.totalFrames + ' frames, ' + state.fps + ' fps');
+        console.log('FAP: proyecto cargado &mdash; ' + state.totalFrames + ' frames, ' + state.fps + ' fps');
       });
     } catch (err) {
-      alert('Archivo .fap inválido o corrupto.');
+      alert('Archivo .fap invÃ¡lido o corrupto.');
       console.error('FAP load error:', err);
     }
   };
   reader.readAsText(file);
 }
 
-// ─── EXPORT EVENTS ───────────────────
+// â”€â”€â”€ EXPORT EVENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('exportGifBtn').addEventListener('click', exportGIF);
 document.getElementById('exportVideoBtn').addEventListener('click', exportVideo);
 
-// ─── SAVE / LOAD EVENTS ──────────────
+// â”€â”€â”€ SAVE / LOAD EVENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
 document.getElementById('openProjectBtn').addEventListener('click', function() {
   document.getElementById('openFileInput').click();
@@ -2478,9 +2790,10 @@ document.getElementById('openFileInput').addEventListener('change', function(e) 
   e.target.value = '';
 });
 
-// ─── INIT ───────────────────────────
+// â”€â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 renderTimeline();
 loadFrame(0);
 </script>
 </body>
 </html>
+
