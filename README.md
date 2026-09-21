@@ -1,16 +1,34 @@
-# FAP Mobile — 2D Animation Studio (PWA)
+# Free Animation Power Mobile — 2D Animation Studio (PWA)
+<p align="center">
+  <a href="https://freeanimationpower.org"><img src="https://img.shields.io/badge/Web_Hub-freeanimationpower.org-ffdc00?style=for-the-badge" alt="Web Hub"></a>
+  <a href="https://www.youtube.com/@freeanimationpower"><img src="https://img.shields.io/badge/YouTube-@freeanimationpower-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"></a>
+  <a href="https://github.com/freeanimationpower"><img src="https://img.shields.io/badge/GitHub-freeanimationpower-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+</p>
 
-**FAP** (Free Animation Power) is a mobile-first, zero-backend 2D animation web application. Draw frame-by-frame, use professional onion skinning, choose from 20 brushes, and export your animations as GIF or video — all from your phone's browser.
+<p align="center">
+  <img src="docs/screenshot.png" alt="Free Animation Power Mobile — estudio de animación 2D para móviles" width="860">
+</p>
 
-<img width="1254" height="1254" alt="FAP MOLE WEB VERSION" src="https://github.com/user-attachments/assets/36bc2bde-46bd-4c2d-a328-fa77785a7433" />
+## 🎬 Videos
 
-> **Accede directamente**: [freeanimationpower.org/tools/mobile/](https://freeanimationpower.org/tools/mobile/) — Usa FAP Mobile sin instalar nada.
+📺 Canal oficial: [@freeanimationpower](https://www.youtube.com/@freeanimationpower)
+
+| Vídeo | Título |
+|---|---|
+| <a href="https://youtu.be/DHaxxRlykOw"><img src="https://i.ytimg.com/vi/DHaxxRlykOw/hqdefault.jpg" width="240"></a> | [La app móvil explicada con palabras de todos los días](https://youtu.be/DHaxxRlykOw) |
+| <a href="https://youtu.be/F_OLFKu4pjY"><img src="https://i.ytimg.com/vi/F_OLFKu4pjY/hqdefault.jpg" width="240"></a> | [Cómo funciona, sus 60 pinceles y la magia de guardar tu animación](https://youtu.be/F_OLFKu4pjY) |
+
+**Free Animation Power** (Free Animation Power) is a mobile-first, zero-backend 2D animation web application. Draw frame-by-frame, use professional onion skinning, choose from 20 brushes, and export your animations as GIF or video — all from your phone's browser.
+
+<img width="1254" height="1254" alt="Free Animation Power MOLE WEB VERSION" src="https://github.com/user-attachments/assets/36bc2bde-46bd-4c2d-a328-fa77785a7433" />
+
+> **Accede directamente**: [freeanimationpower.org/tools/mobile/](https://freeanimationpower.org/tools/mobile/) — Usa Free Animation Power Mobile sin instalar nada.
 
 ---
 
 ## Documentacion Tecnica
 
-- [Informe Tecnico FAP Mobile](informes_pdf/02_FAP_Mobile_Web.pdf) — Documento completo de arquitectura, stack tecnologico, diagramas de flujo y especificaciones tecnicas de la version mobile PWA.
+- [Informe Tecnico Free Animation Power Mobile](informes_pdf/02_FAP_Mobile_Web.pdf) — Documento completo de arquitectura, stack tecnologico, diagramas de flujo y especificaciones tecnicas de la version mobile PWA.
 
 ---
 
