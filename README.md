@@ -61,29 +61,28 @@
 
 ```mermaid
 flowchart LR
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#ffdc00', 'primaryBorderColor': '#1a1a1a', 'primaryTextColor': '#1a1a1a', 'lineColor': '#ff4200', 'fontFamily': 'Segoe UI'}}}%%
     classDef ui fill:#ffdc00,stroke:#1a1a1a,color:#1a1a1a,stroke-width:2px;
     classDef engine fill:#ff4200,stroke:#1a1a1a,color:#ffffff,stroke-width:2px;
     classDef data fill:#1a1a1a,stroke:#ff4200,color:#ffffff,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#1a1a1a,color:#1a1a1a,stroke-width:2px,stroke-dasharray:6 3;
-        subgraph MODEL["🗄️ Data Model — .fap JSON"]
+    classDef ext fill:#ffffff,stroke:#1a1a1a,color:#1a1a1a,stroke-width:2px;
+        subgraph MODEL["Data Model — .fap JSON"]
             direction TB
             FRM["frames[]<br/>PNG base64"]
             CFG["config<br/>fps · size · colors"]
         end
-        subgraph PIPE["🖼️ Rendering Pipeline — loadFrame()"]
+        subgraph PIPE["Rendering Pipeline — loadFrame()"]
             direction TB
             CLR["Clear canvas"]
-            IMG["drawImage per layer<br/>onion skin ±N frames"]
+            IMG["drawImage per layer<br/>onion skin N frames"]
             DSP["Display 100% client"]
         end
-        subgraph DRAW["✏️ Drawing Flow"]
+        subgraph DRAW["Drawing Flow"]
             direction TB
             EVT["Touch / Pointer events"]
             SEG["Stroke segments buffer"]
             UND["Undo / Redo stack"]
         end
-        subgraph OUT["📤 Output"]
+        subgraph OUT["Output"]
             GIF["Export GIF / Video"]
             SAV["Save / Load .fap"]
         end
